@@ -18,12 +18,12 @@
 :root{
   --frame:#F3ECDD; --frame-ink:#141414; --frame-mute:#6B6458;
   --card:#FFFDF8; --ink:#141414; --mute:#6B6458; --line:#ECE4D4;
-  --blue:#56702A; --on-blue:#FFFFFF; --blue-bg:#E2EACB;
+  --blue:#4E6725; --on-blue:#FFFFFF; --blue-bg:#E2EACB;
   --indigo:#141414; --on-indigo:#FFFFFF;
   --alert:#C23B32; --alert-bg:#FBE9E6; --alert-ink:#8E2A22;
   --pill:#E6DDCA; --tint:#F4EEE2; --idbar:#FFFDF8;
   --yellow:#F4D35E; --pink:#F5B8D7; --green:#A4B66F; --peri:#B5C9EE; --on-pastel:#141414;
-  --orange:#F26A21; --barc:#D2CABA; --tip-bg:#141414; --tip-ink:#FFFFFF;
+  --orange:#E65A12; --barc:#BCB2A0; --tip-bg:#141414; --tip-ink:#FFFFFF;
   --shade:rgba(20,18,12,.5);
   --display:"Space Grotesk",system-ui,sans-serif; --body:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
 }
@@ -389,18 +389,17 @@ function sensitiveCard(p){if(S.role!=="patient")return `<section class="card"><h
 function reqBtn(p,sec,label){if(S.role==="patient"||S.role==="ambulance")return "";const r=p.requests.find(r=>r.p===R().provider&&r.sec===sec&&r.status==="pending");return r?`<span class="tag">Requested ${esc(r.when.slice(12))}</span>`:`<button class="btn ghost" data-req="${sec}">${ic("key")} ${label}</button>`}
 
 /* ---------- assistant ---------- */
-const AIQ={patient:["What does my latest result mean?","Summarise my record in 3 lines"],clinic:["Any reason to prioritise this referral?","Can they have amoxicillin?","Summarise this case in 3 lines"],pharmacy:["Any allergies I should know about?","What medicines are they on?"],ambulance:["What matters most right now?","Any blood thinners or implants?"]};
+const AIQ={patient:["What does my latest result mean?","When is my next check?","Who can see my record?","Summarise my record"],clinic:["Any reason to prioritise this referral?","Can they have amoxicillin?","Summarise this case"],pharmacy:["Any allergies I should know about?","What medicines are they on?"],ambulance:["What matters most right now?","Any blood thinners or implants?"]};
 function aiCard(p,a){const st=S.ai[S.role+":"+p.id]||(S.ai[S.role+":"+p.id]={msgs:[],busy:false,err:""});
-  const unavailable=S.sample===null;
+  const offline=S.sample===null;
   let body="";
   if(S.aiOpen){
-    if(unavailable)body=`<div class="msg a">Assistant unavailable here. It runs on the claude.ai version of CareLoop for signed-in viewers. Everything else on this page still works.</div>`;
-    else{body=`<div class="small mute" style="margin-top:8px">Sees only what you can see${a.emOnly?" (emergency card)":""}. Sensitive sections are never sent.</div>`+
-      st.msgs.map(m=>`<div class="msg ${m.r}">${m.r==="a"?citeHTML(m.t):esc(m.t)}</div>`).join("")+(st.busy&&!st.msgs.length?`<div class="msg a">Thinking…</div>`:"")+
-      `<div class="tags" style="margin-top:8px">${(AIQ[S.role]||[]).map((q,i)=>`<button class="chip sm" data-aiq="${i}">${esc(q)}</button>`).join("")}</div>
-      <form id="aiForm" style="display:flex;gap:6px;margin-top:8px"><input type="text" id="aiIn" placeholder="${S.role==="patient"?"When is my next check?":"Ask about this record"}" aria-label="Question for the record assistant"><button class="btn" aria-label="Send">${ic("send")}</button></form><div class="err" id="aiErr">${esc(st.err)}</div>`}
-    body+=`<div class="small mute" style="margin-top:6px">Answers from the record only, with sources. No diagnosis or treatment advice. Flags, escalation and closure stay rule-based and human.</div>`}
-  return `<section class="card" style="padding:12px 16px"><button class="ai-head" data-act="aitoggle" aria-expanded="${S.aiOpen}"><span class="ai-ic">${ic("auto_awesome")}</span><b style="font-weight:600;flex:1">Ask the record</b><span class="aitag">AI</span>${ic(S.aiOpen?"close":"chevron_right")}</button>${body}</section>`}
+    body=`<div class="small mute" style="margin-top:8px">${offline?"AI isn't available here; it runs on the claude.ai version for signed-in viewers. Answers below come from an offline keyword search of the record.":"Sees only what you can see"+(a.emOnly?" (emergency card)":"")+". Sensitive sections are never sent."}</div>`+
+      st.msgs.map(m=>`<div class="msg ${m.r}">${m.r==="a"?citeHTML(m.t):esc(m.t)}${m.off?`<div class="small mute" style="margin-top:4px">${m.note?esc(m.note)+" · ":""}Offline record search · not AI</div>`:""}</div>`).join("")+
+      `<div class="tags" style="margin-top:8px">${(AIQ[S.role]||[]).map((q,i)=>`<button class="chip sm" data-aiq="${i}"${st.busy?" disabled":""}>${esc(q)}</button>`).join("")}${st.msgs.length?`<button class="chip sm" data-act="aiclear" style="background:transparent;box-shadow:inset 0 0 0 1px var(--line)">Clear chat</button>`:""}</div>
+      <form id="aiForm" style="display:flex;gap:6px;margin-top:8px"><input type="text" id="aiIn" maxlength="300" autocomplete="off" placeholder="${S.role==="patient"?"When is my next check?":"Ask about this record"}" aria-label="Question for the record assistant"><button class="btn" aria-label="Send"${st.busy?" disabled":""}>${ic("send")}</button></form><div class="err" id="aiErr" role="status">${esc(st.err)}</div>`+
+      `<div class="small mute" style="margin-top:6px">Answers from the record only, with sources. No diagnosis or treatment advice. Flags, escalation and closure stay rule-based and human.</div>`}
+  return `<section class="card" style="padding:12px 16px"><button class="ai-head" data-act="aitoggle" aria-expanded="${S.aiOpen}"><span class="ai-ic">${ic("auto_awesome")}</span><b style="font-weight:600;flex:1">Ask the record</b><span class="aitag">${offline?"Offline":"AI"}</span>${ic(S.aiOpen?"close":"chevron_right")}</button>${body}</section>`}
 function citeHTML(t){const p=cur();return esc(t).replace(/\[([a-z]\d{1,2}(?:\s*,\s*[a-z]\d{1,2})*)\]/gi,(m,ids)=>ids.split(/\s*,\s*/).map(id=>{const e=p.events.find(x=>x.id===id.toLowerCase());return e?`<button class="cite" data-ev="${e.id}">${esc(e.title)}</button>`:""}).join(", "))}
 function aiContext(p,a){const L=[];
   L.push(`Patient: ${p.name}, ${p.sex}, ${p.age}, CareLoop ID ${p.clid}. Preferred language: ${p.lang}.`);
@@ -413,9 +412,59 @@ function aiContext(p,a){const L=[];
   const locked=SECTIONS.filter(s=>!canSec(a,s[0])).map(s=>s[1]);
   if(locked.length)L.push("Locked to this viewer (not provided, never guess): "+locked.join(", ")+".");
   return L.join("\n")}
+/* Questions asking for a diagnosis, treatment choice or dose get a fixed reply in both modes, before anything reaches the model */
+const GUARD=/\b(what|which|right|correct) dose\b|\bhow (much|many) (should|do|can|must)\b|\bshould (i|he|she|they|we) (take|stop|start|increase|reduce|double|skip)\b|\bdo i have\b|\bhave i got\b|\bam i (sick|ill|dying|ok)\b|\bdiagnos(e|is) (me|him|her|them)\b|\bprescribe\b|\bwhat treatment\b|\bcure\b/i;
+const GUARD_REPLY="I can't diagnose or advise on treatment or doses; the clinician decides. I can tell you what the record says, for example medicines, allergies or the next step in the case.";
+const STOPW=new Set("what when where which does have with this that their there about record from they them your mine will would could should please tell show give been were into".split(" "));
+function localAnswer(q,p,a){
+  if(GUARD.test(q))return GUARD_REPLY;
+  const pt=S.role==="patient",poss=pt?"Your":p.first+"'s",lq=q.toLowerCase(),vis=!a.emOnly&&!a.none,has=re=>re.test(lq);
+  const evs=p.events.filter(e=>canEvent(a,e));
+  const cite=f=>{const ids=evs.filter(f).map(e=>e.id);return ids.length?" ["+ids.join(", ")+"]":""};
+  const caseOK=pt||(vis&&canSec(a,"readings"));
+  const allergies=()=>poss+" allergies: "+p.em.allergies.map(x=>x[0]).join("; ")+"."+cite(e=>e.cat==="allergy");
+  const meds=()=>poss+" medicines: "+(vis&&canSec(a,"medications")?p.secs.medications:p.em.meds).join("; ")+"."+cite(e=>e.cat==="med");
+  const conds=()=>poss+" conditions: "+(vis&&canSec(a,"conditions")?p.secs.conditions:p.em.conditions).join("; ")+"."+cite(e=>e.cat==="cond");
+  const implants=()=>"Implants: "+p.em.implants.join("; ")+"."+cite(e=>e.cat==="surg"&&/valve|plate|implant|mesh/i.test(e.title+JSON.stringify(e.rows)));
+  const caseLine=()=>{const c=p.caseData,i=c.steps.findIndex(s=>!s.done);return `${c.title}: ${c.status}, opened ${c.opened}. `+(i<0?"All 8 steps are done.":`Now at step ${i+1} of 8 (${STEP_NAMES[i]}), owner ${c.steps[i].owner}, due ${c.steps[i].due}.`)+cite(e=>e.caseLink)};
+  const out=[];
+  const list=(k,label)=>vis&&canSec(a,secOfList[k])?label+": "+p.secs[k].join("; ")+".":null;
+  if(has(/summar|overview|matters most|3 lines|three lines|key facts/)){
+    out.push(`${p.name}, ${p.sex}, ${p.age}.`,allergies(),conds(),meds());
+    if(!/^(no implants|none)$/i.test(p.em.implants.join("")))out.push(implants());
+    if(caseOK)out.push(caseLine())}
+  else{
+    if(has(/allerg|penicillin|amoxicillin|reaction|contrast|dye|antibiotic/))out.push(allergies());
+    if(has(/medic|drug|tablet|pill|warfarin|metformin|amlodipine|thinner|anticoag|bleed|taking|on any/))out.push(meds());
+    if(has(/implant|valve|plate|device|metal|mri|pacemaker/))out.push(implants());
+    if(has(/condition|illness|problem|diabet|history of|diagnos/))out.push(conds());
+    if(has(/blood (group|type)|genotype|sickle|transfus/)){const src=vis?p.sum.filter(r=>/Blood group|Genotype|Sickle/.test(r[0])).map(r=>r[0]+" "+r[1]):p.em.other.filter(x=>/Blood|Genotype|Sickle/.test(x));out.push(src.join("; ")+".")}
+    if(has(/result|reading|\bbp\b|blood pressure|latest|mean|glucose|hba1c|inr|egfr|kidney/)){const r=evs.filter(e=>e.cat==="read").pop();
+      if(r){out.push(`Latest reading: ${r.title}, ${r.date}, ${r.place}. `+r.rows.map(x=>x[0]+": "+x[1]).join("; ")+". ["+r.id+"]");if(pt&&p.caseData.status!=="closed")out.push("A screening result isn't a diagnosis. The clinic checks it again with a second reading.")}}
+    if(has(/next|appointment|upcoming|when|book|due|visit/)&&vis&&a.full)out.push("Upcoming: "+p.plan.find(r=>r[0]==="Upcoming")[1]+".");
+    if(has(/case|referral|status|step|overdue|priorit|follow|lost|loop|next/)&&caseOK)out.push(caseLine());
+    if(has(/contact|daughter|spouse|son\b|family|call|next of kin/)&&vis)out.push("Emergency contact: "+p.contact+".");
+    if(has(/pregnan|birth|caesarean|baby/))out.push(list("pregnancy","Pregnancy history")||"Pregnancy history is locked to you.");
+    if(has(/vaccin|immunis|immuniz|jab/))out.push(list("immun","Immunisations")||"Immunisations are locked to you.");
+    if(has(/admission|admitted|hospital stay/))out.push(list("admissions","Hospital admissions")||"Hospital admissions are locked to you.");
+    if(has(/family history|parents|mother|father/))out.push(list("family","Family history")||"Family history is locked to you.");
+    if(has(/surger|operation|fracture|injur/)){const s=evs.filter(e=>e.cat==="surg");out.push(s.length?"Surgeries and injuries: "+s.map(e=>`${e.title}, ${e.date} [${e.id}]`).join("; ")+".":"Surgeries and injuries are locked to you.")}
+    if(has(/x-?ray|imaging|scan|file|report|document|note/)){const xo=has(/x-?ray|imaging/),f=evs.filter(e=>canFiles(a,e)&&(e.files||[]).some(x=>!xo||x.t==="xray"));
+      out.push(f.length?(xo?"X-rays":"Files")+" you can open: "+f.map(e=>e.files.filter(x=>!xo||x.t==="xray").map(x=>x.n).join(", ")+` (${e.date}) [${e.id}]`).join("; ")+". Tap a source to open the entry.":xo?"No X-rays you can open in this record.":"No files you can open in this record.")}
+    if(!caseOK&&has(/case|referral|status|step|overdue|priorit|appointment|next|upcoming/))out.push("The case and appointments are locked to you.");
+    if(pt&&has(/access|who can see|shared|sharing|permission|see my/))out.push("Who can see your record: "+p.grants.filter(g=>g.on).map(g=>g.p+" ("+(g.level==="full"?"full record":g.secs.map(s=>SECNAME[s]).join(", "))+")").join("; ")+". You can change this in the Access tab.");}
+  if(!out.length){const words=lq.split(/[^a-z0-9]+/).filter(w=>w.length>3&&!STOPW.has(w));
+    evs.map(e=>({e,s:words.filter(w=>(e.title+" "+e.place+" "+e.rows.map(r=>r.join(" ")).join(" ")).toLowerCase().includes(w)).length})).filter(x=>x.s).sort((x,y)=>y.s-x.s).slice(0,2)
+      .forEach(({e})=>out.push(`${e.title}, ${e.date}, ${e.place}: `+e.rows.map(r=>r[0]+" "+r[1]).join("; ")+". ["+e.id+"]"))}
+  if(!out.length){out.push("I couldn't find that in the part of the record you can see. Try asking about allergies, medicines, the latest result or the case.");
+    if(!vis)out.push("You can see the emergency card only: allergies, conditions, medicines and implants.");
+    else{const locked=SECTIONS.filter(s=>!canSec(a,s[0])).map(s=>s[1]);if(locked.length&&!pt)out.push("Locked to you: "+locked.join(", ")+".")}}
+  return [...new Set(out)].join("\n")}
 async function askAI(q){const p=cur(),a=access(p),key=S.role+":"+p.id,st=S.ai[key];
-  if(!S.sample||st.busy)return;
+  if(st.busy)return;
   st.msgs.push({r:"q",t:q});st.busy=true;st.err="";render();
+  if(S.sample===undefined&&S.sampleP){try{await S.sampleP}catch(e){}}
+  if(GUARD.test(q)||!S.sample){log(p,"Asked the record assistant a question");st.msgs.push({r:"a",t:localAnswer(q,p,a),off:!S.sample&&!GUARD.test(q)});st.busy=false;return render()}
   const viewer=S.role==="patient"?`the patient (${p.name}). Use plain, kind language a non-medical person understands, in ${p.lang}.`:`${R().staff} at ${R().provider}. Use short clinical language.`;
   const instr=`You are the CareLoop record assistant in a hackathon prototype. All people and data are made up.
 Rules:
@@ -434,7 +483,8 @@ ${aiContext(p,a)}`;
   const ans={r:"a",t:"Thinking…"};st.msgs.push(ans);render();
   log(p,"Asked the record assistant a question");
   try{const res=await S.sample(msgs,{modelTier:"quick",cache:false,onText:({text})=>{ans.t=text||"Thinking…";if(S.aiOpen)renderMain()}});ans.t=res.text||ans.t}
-  catch(e){st.msgs.pop();if(e&&e.code==="not_granted"){S.sample=null}else st.err=e&&e.code==="rate_limited"?"Too many questions. Wait a minute and try again.":"The assistant didn't answer. Try again."}
+  catch(e){st.msgs.pop();if(e&&e.code==="not_granted")S.sample=null;
+    st.msgs.push({r:"a",t:localAnswer(q,p,a),off:true,note:e&&e.code==="not_granted"?"AI not allowed":e&&e.code==="rate_limited"?"AI busy, try again in a minute":"AI didn't answer"})}
   st.busy=false;render()}
 
 /* ---------- case view ---------- */
@@ -568,7 +618,7 @@ document.addEventListener("click",ev=>{const t=ev.target.closest("button,[data-a
   if(d.role){S.role=d.role;S.view={admin:"dashboard",regulator:"trail"}[d.role]||"profile";return render()}
   if(d.view){S.view=d.view;window.scrollTo({top:0});return render()}
   if(d.filter){S.filter=d.filter;return renderMain()}
-  if(d.ev){S.filter=FGROUP[S.filter]&&!FGROUP[S.filter].includes(p.events.find(e=>e.id===d.ev).cat)?"all":S.filter;S.sel[p.id]=d.ev;if(S.view!=="profile")S.view="profile";render();const tl=document.querySelector(".track");if(tl&&t.classList.contains("cite"))tl.scrollIntoView({behavior:"smooth",block:"center"});return}
+  if(d.ev){S.filter=FGROUP[S.filter]&&!FGROUP[S.filter].includes(p.events.find(e=>e.id===d.ev).cat)?"all":S.filter;S.sel[p.id]=d.ev;if(S.view!=="profile")S.view="profile";render();const tl=document.querySelector(".bars");if(tl&&t.classList.contains("cite"))tl.scrollIntoView({behavior:"smooth",block:"center"});return}
   if(d.step){const L=evList(p),e=selEvent(p);const i=L.indexOf(e)+(+d.step);if(i>=0&&i<L.length){S.sel[p.id]=L[i].id;renderMain()}return}
   if(d.file!=null){const e=selEvent(p);return fileModal((e.files||[]).concat(e.up||[])[+d.file])}
   if(d.req){p.requests.push({p:R().provider,sec:d.req,when:clock(),status:"pending"});log(p,`Requested access: ${d.req==="full"?"full record":SECNAME[d.req]}`);toast(`Request sent to ${p.first}`);return render()}
@@ -582,6 +632,7 @@ document.addEventListener("click",ev=>{const t=ev.target.closest("button,[data-a
    case "scan":return scanFlow();
    case "close":return closeModal();
    case "aitoggle":S.aiOpen=!S.aiOpen;return renderMain();
+   case "aiclear":S.ai[S.role+":"+p.id]={msgs:[],busy:false,err:""};return renderMain();
    case "upload":return $("fileIn").click();
    case "emtoggle":return pinModal(p.emergencyFull?"Turn off full emergency access":"Turn on full emergency access",p.emergencyFull?"Ambulances and hospitals will see your emergency card only in an emergency.":"Ambulances and hospitals will see your whole record in an emergency. It's always flagged and reported to you.",()=>{p.emergencyFull=!p.emergencyFull;log(p,`Full access in an emergency turned ${p.emergencyFull?"on":"off"}`);toast(`Turned ${p.emergencyFull?"on":"off"}`);render()});
    case "stepdone":case "reject":case "escalate":case "reassign":return caseAct(d.act);
@@ -600,7 +651,7 @@ $("modal").addEventListener("click",ev=>{if(ev.target===$("modal"))closeModal()}
 $("fileIn").addEventListener("change",ev=>{const f=ev.target.files[0];if(!f)return;const p=cur(),e=selEvent(p);(e.up=e.up||[]).push({n:f.name,t:"upload",mime:f.type,size:f.size,url:URL.createObjectURL(f),held:"Patient upload"});log(p,`Uploaded file: ${f.name} (patient-reported)`);ev.target.value="";toast("File added, labelled patient-reported");render()});
 
 render();
-(async()=>{try{S.sample=window.claude&&window.claude.use?await window.claude.use("sample"):null}catch(e){S.sample=null}if(S.aiOpen)renderMain()})();
+S.sampleP=(async()=>{try{S.sample=window.claude&&window.claude.use?await window.claude.use("sample"):null}catch(e){S.sample=null}if(S.aiOpen)renderMain()})();
 </script>
 </body>
 </html>
