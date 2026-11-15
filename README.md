@@ -18,6 +18,7 @@ CareLoop follows a person from a screening result to documented care. Each case 
   - fallbacks: one-time code (demo code 4829), ID card + PIN (demo PIN 2580), or staff-assisted entry (flagged)
 - **A patient access manager:** full access or chosen sections, kept on until the patient turns it off, plus access requests and an emergency-access switch.
 - **An audit log** for every view, file opened, upload, request and emergency access.
+- **Screening programmes:** the demo data is hypertension, and the dashboard shows the same case engine set up with example rules for diabetes, cervical cancer, TB and newborn sickle cell screening.
 - **A closure dashboard** built from a simulated group of 60 cases: time to notification, confirmation and care; where cases drop off and why; overdue cases; small groups hidden.
 - **A record assistant ("Ask the record"):** answers only from what the current viewer may see and cites its sources.
   - On the claude.ai version it uses AI for signed-in viewers.
