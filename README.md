@@ -21,8 +21,9 @@ CareLoop follows a person from a screening result to documented care. Each case 
 - **Screening programmes:** the demo data is hypertension, and the dashboard shows the same case engine set up with example rules for diabetes, cervical cancer, TB and newborn sickle cell screening.
 - **A closure dashboard** built from a simulated group of 60 cases: time to notification, confirmation and care; where cases drop off and why; overdue cases; small groups hidden.
 - **A record assistant ("Ask the record"):** answers only from what the current viewer may see and cites its sources.
+  - On the Azure version it uses Azure OpenAI through a small Azure Function (`api/`), so it works for any visitor. The API key stays in Azure's settings. See [AZURE-SETUP.md](AZURE-SETUP.md).
   - On the claude.ai version it uses AI for signed-in viewers.
-  - Elsewhere, including this GitHub version, it falls back to an offline keyword search of the record, labelled "not AI".
+  - Elsewhere, including the GitHub Pages version, it falls back to an offline keyword search of the record, labelled "not AI".
   - Questions asking for a diagnosis, treatment or a dose get a fixed refusal before anything reaches the AI.
 
 ## Limits
