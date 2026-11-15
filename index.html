@@ -67,6 +67,7 @@ button{cursor:pointer}
 .tag.sev{background:var(--alert);color:#fff}
 .tag.mod{background:var(--alert-bg);color:var(--alert-ink)}
 .tag.ok{background:var(--blue-bg);color:var(--blue)}
+.progs{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}.prog{background:var(--tint);border-radius:14px;padding:12px 14px;font-size:13px}.prog .ph{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}.prog .ph b{font-weight:500;font-size:14px}.prog .ph .tag{white-space:nowrap;background:var(--card)}.prog .ph .tag.ok{background:var(--blue-bg)}.prog .pr{display:grid;grid-template-columns:92px minmax(0,1fr);gap:8px;margin-top:3px}
 .tag.pr{background:var(--alert-bg);color:var(--alert-ink)}
 .tag.file{background:var(--blue);color:var(--on-blue);border:none}
 .tags{display:flex;flex-wrap:wrap;gap:5px}
@@ -505,7 +506,7 @@ function caseHTML(){const p=cur(),a=access(p),c=p.caseData;
   return `<div class="grid"><div class="col">
    <section class="card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><h2 style="font-size:20px;margin:0">${esc(c.title)}</h2><div class="small mute">${esc(p.name)} · ${p.clid} · opened ${esc(c.opened)}</div></div>${pill}</div>
     <div class="metrics" style="margin-top:12px"><div class="metric"><span class="small mute">Time to notification</span><b>${esc(c.metrics.notify)}</b></div><div class="metric"><span class="small mute">Time to confirmation</span><b>${esc(c.metrics.confirm)}</b></div><div class="metric"><span class="small mute">Time to care</span><b>${esc(c.metrics.care)}</b></div></div>
-    <p class="small mute" style="margin:10px 0 0">Rule: 140/90 or above prompts a referral, not a diagnosis. 180/120 or above escalates the same day.</p></section>
+    <p class="small mute" style="margin:10px 0 0"><b style="font-weight:500">Programme: hypertension.</b> Rule: 140/90 or above prompts a referral, not a diagnosis. 180/120 or above escalates the same day.</p></section>
    <section class="card"><h2>${ic("route")}Steps</h2><div class="steps">${steps}</div></section></div>
    <div class="col">${actions}
    <section class="card"><h2>${ic("send")}Messages to ${esc(p.first)}<span class="sub">${esc(p.plan[0][1].split(";")[0])}</span></h2>${c.msgs.map(m=>`<div class="aud"><div class="t">${esc(m[0])} · ${esc(m[1])}</div><div>${esc(m[2])}</div></div>`).join("")}</section>
@@ -556,6 +557,13 @@ const COHORT=(()=>{const r=rng(11),fac=["City Pharmacy","Family Health Clinic","
    const owner=s==="unassigned"?"Unassigned":f==="Central General Hospital"?"Dr N. Haddad":f==="City Pharmacy"?"Pharm. J. Osei":"Nurse A. Bello";
    const late=s==="overdue"?3+Math.floor(r()*18):s==="lost"?21+Math.floor(r()*20):s==="escalated"?36:s==="rejected"||s==="unassigned"?1+Math.floor(r()*4):0;
    return {id:s==="escalated"?"C-1087":"C-"+(1040+i),s,f,sex,age,prog,nh,cd,care,reason,owner,late}})})();
+const PROGRAMMES=[
+ {n:"Hypertension",live:true,trig:"BP 140/90 or above (180/120 or above escalates the same day)",next:"Confirmatory reading, then seen by a clinician"},
+ {n:"Diabetes",trig:"Raised blood glucose at screening",next:"Confirmatory test (fasting glucose or HbA1c), then clinician review"},
+ {n:"Cervical cancer",trig:"Positive HPV or VIA screen",next:"Treatment or further assessment visit"},
+ {n:"Tuberculosis",trig:"Positive symptom screen, e.g. cough for 2 weeks or more",next:"Sputum test, then treatment start if positive"},
+ {n:"Newborn sickle cell",trig:"Positive newborn screen",next:"Confirmatory test, then enrolment in a sickle cell clinic"}];
+function progHTML(){return `<section class="card"><h2>${ic("route")}Screening programmes<span class="sub">Same 8-step case engine</span></h2><p class="small mute" style="margin:0 0 8px">Each programme needs only its own trigger rule and owners. Only hypertension has demo data; the others are example rules, to be set with clinical partners.</p><div class="progs">${PROGRAMMES.map(g=>`<div class="prog"><div class="ph"><b>${g.n}</b><span class="tag${g.live?" ok":""}">${g.live?"In this demo":"Example rule"}</span></div><div class="pr"><span class="mute">Opens a case</span><span>${esc(g.trig)}</span></div><div class="pr"><span class="mute">Next step</span><span>${esc(g.next)}</span></div></div>`).join("")}</div></section>`}
 function median(a){a=a.filter(x=>x!=null).sort((x,y)=>x-y);if(!a.length)return null;const m=a.length>>1;return a.length%2?a[m]:(a[m-1]+a[m])/2}
 function dashHTML(){const C=COHORT,n=C.length,closed=C.filter(c=>c.s==="closed").length,prob=C.filter(c=>["overdue","lost","rejected","unassigned","escalated"].includes(c.s));
   const tile=(l,v,s)=>`<div class="metric"><span class="small mute">${l}</span><b>${v}</b>${s?`<span class="small mute">${s}</span>`:""}</div>`;
@@ -567,6 +575,7 @@ function dashHTML(){const C=COHORT,n=C.length,closed=C.filter(c=>c.s==="closed")
   return `<div style="display:flex;flex-direction:column;gap:14px">
   <div style="color:var(--frame-ink)"><h2 style="font-size:22px">Closing the loop: last 12 months</h2><p style="margin:2px 0 0;color:var(--frame-mute);font-size:13px">Simulated cohort of ${n} raised-BP cases across 4 sites. Aggregate only; no names.</p></div>
   <div class="metrics">${tile("Cases flagged",n)}${tile("Closed with evidence",Math.round(closed/n*100)+"%",closed+" of "+n)}${tile("Median time to notification",median(C.map(c=>c.nh))+" h")}${tile("Median time to confirmation",median(C.map(c=>c.cd))+" days")}${tile("Median time to care",median(C.map(c=>c.care))+" days")}${tile("Overdue, rejected or unassigned",prob.length,"need an owner's action")}</div>
+  ${progHTML()}
   <div class="grid2"><section class="card"><h2>${ic("route")}Where cases drop off</h2><p class="small mute" style="margin:0 0 6px">Cases that reached each step.</p>${funnel}</section>
   <section class="card"><h2>${ic("warning")}Why people dropped off</h2><p class="small mute" style="margin:0 0 6px">Reasons recorded on overdue, lost, rejected and escalated cases.</p>${reasons}</section></div>
   <section class="card"><h2>${ic("warning")}Needs action<span class="sub">Sorted by days late</span></h2><div class="tw"><table><thead><tr><th>Case</th><th>Status</th><th>Site</th><th>Owner</th><th>Days late</th><th>Reason</th></tr></thead><tbody>${prob.sort((a,b)=>b.late-a.late).map(c=>`<tr><td>${c.id}</td><td><span class="tag ${c.s==="escalated"?"mod":"sev"}">${label[c.s]}</span></td><td>${esc(c.f)}</td><td${c.owner==="Unassigned"?' style="color:var(--alert)"':""}>${esc(c.owner)}</td><td>${c.late}</td><td>${esc(c.reason||"–")}</td></tr>`).join("")}</tbody></table></div></section>
