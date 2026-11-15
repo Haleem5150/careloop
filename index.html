@@ -509,7 +509,7 @@ function caseHTML(){const p=cur(),a=access(p),c=p.caseData;
     <p class="small mute" style="margin:10px 0 0"><b style="font-weight:500">Programme: hypertension.</b> Rule: 140/90 or above prompts a referral, not a diagnosis. 180/120 or above escalates the same day.</p></section>
    <section class="card"><h2>${ic("route")}Steps</h2><div class="steps">${steps}</div></section></div>
    <div class="col">${actions}
-   <section class="card"><h2>${ic("send")}Messages to ${esc(p.first)}<span class="sub">${esc(p.plan[0][1].split(";")[0])}</span></h2>${c.msgs.map(m=>`<div class="aud"><div class="t">${esc(m[0])} · ${esc(m[1])}</div><div>${esc(m[2])}</div></div>`).join("")}</section>
+   <section class="card"><h2>${ic("send")}Messages to ${esc(p.first)}<span class="sub">${esc(p.plan[0][1].split(";")[0])}</span></h2>${c.msgs.map(m=>`<div class="aud"><div class="t">${esc(m[0])} · ${esc(m[1])}</div><div>${esc(m[2])}</div></div>`).join("")}${clin&&i>=0?draftHTML(p,c,i):""}</section>
    <section class="card"><h2>${ic("history")}Case history</h2>${c.log.slice().reverse().map(l=>`<div class="aud"><div class="t">${esc(l[0])}</div><div>${esc(l[1])}</div></div>`).join("")}</section>${notes}</div></div>`}
 function daysSince(d){const n=Math.round((TODAY_D-d)/864e5);return n===0?"Same day":n+" day"+(n>1?"s":"")}
 function caseAct(act){const p=cur(),c=p.caseData,i=c.steps.findIndex(s=>!s.done),s=c.steps[i];const err=m=>{$("caseErr").textContent=m};
@@ -526,6 +526,66 @@ function caseAct(act){const p=cur(),c=p.caseData,i=c.steps.findIndex(s=>!s.done)
     toast(i===7?"Case closed":STEP_NAMES[i]+": done");return render()}
   if(act==="reject"){if(!ev)return err("Give a reason for rejecting the referral.");s.rej=ev;s.owner="Unassigned";c.status="unassigned";c.log.push([clock(),"Referral rejected: "+ev]);log(p,"Rejected referral: "+ev,true);toast("Referral rejected; case is unassigned");return render()}
   if(act==="escalate"){if(!ev)return err("Say why you're escalating.");c.status="escalated";s.owner="Nurse A. Bello (escalation)";c.log.push([clock(),"Escalated: "+ev]);log(p,"Escalated case: "+ev,true);toast("Case escalated");return render()}}
+
+/* ---------- message drafts: AI or template drafts, a person approves ---------- */
+S.draft={};
+const DRAFT_BAD=/\b\d+\s?mg\b|\bdoses?\b|\bdiagnos|\btablets?\b|\bpills?\b|metformin|amlodipine|warfarin|labetalol|penicillin|amoxicillin|hypertension|diabet|\bcure\b/i;
+function draftMeta(p,c,i){const contact=p.plan[0][1],barriers=p.plan[1][1],upcoming=p.plan[3][1],s=c.steps[i];
+  const phone=/^phone/i.test(contact),when=(contact.match(/after \d{1,2}(?::\d{2})? ?[ap]m/i)||[""])[0];
+  return {contact,barriers,upcoming,step:STEP_NAMES[i],owner:s.owner,due:s.due,phone,when,channel:phone?"Call script":"SMS",clinic:R().provider||"the clinic",staff:R().staff||"the care team"}}
+function draftTemplate(p,c,i){const m=draftMeta(p,c,i),hi=m.phone?`Hello ${p.first}, this is ${m.staff} from ${m.clinic}.`:`Hi ${p.first}, this is CareLoop for ${m.clinic}.`;
+  const slot=(m.upcoming.match(/^[^·]*\d{1,2}:\d{2}[^·]*/)||[""])[0].trim().replace(/ 2026/,"").replace(/\b(his|her)\b/g,"your"),due=(i===3?c.steps[4].due:m.due).replace(/ 2026$/,"");
+  const opts=/saturday/i.test(m.barriers)?" Saturday slots are available.":/shift|pay|work/i.test(m.barriers)?" Early-morning and evening slots are available.":"";
+  const reply=m.phone?" Is that time still good for you?":" Reply to this message or call the clinic to change it.";
+  let body;
+  if(i<=2)body=" Your blood pressure reading needs a second check. The clinic will contact you to book it. Reply YES if you got this.";
+  else if(i===3)body=` We have your referral and will contact you to book your second blood pressure reading by ${due}.`+opts;
+  else if(i===4)body=(slot?` Your second blood pressure reading is booked: ${slot}.`:` Your second blood pressure reading is due by ${due}.${opts}`)+reply;
+  else if(i<=6)body=` Please come in to see the clinician about your blood pressure results by ${due}.${opts}`+reply;
+  else body=" Your blood pressure follow-up is nearly complete. Thank you. Contact us if you have any questions.";
+  return hi+body}
+function draftHTML(p,c,i){const d=S.draft[p.id],m=draftMeta(p,c,i);
+  const queue=m.when?`<div class="small mute" style="margin-top:6px">${m.phone?"Call":"Sends"} ${esc(m.when)}, as ${esc(p.first)} prefers.</div>`:"";
+  if(!d)return `<div style="margin-top:10px;border-top:1px solid var(--line,#E5DED3);padding-top:10px"><button class="btn ghost" data-act="draft">${ic("auto_awesome")}Draft next message</button><p class="small mute" style="margin:6px 0 0">Drafts the ${m.channel==="SMS"?"SMS":"call script"} for step ${i+1}, ${esc(m.step)}, from ${esc(p.first)}'s contact preferences and barriers. Nothing is sent until you approve it.</p></div>`;
+  const tag=d.busy?`<span class="tag mod">Drafting…</span>`:d.src==="ai"?`<span class="tag mod">AI draft · check before sending</span>`:`<span class="tag">Template · not AI</span>`;
+  return `<div style="margin-top:10px;border-top:1px solid var(--line,#E5DED3);padding-top:10px"><div class="row" style="justify-content:space-between;align-items:center"><b style="font-weight:500">${m.channel} to ${esc(p.first)}</b>${tag}</div>
+    <label class="small mute" for="draftIn" style="display:block;margin:6px 0 4px">Edit before approving</label><textarea id="draftIn" ${d.busy?"readonly":""} style="min-height:96px">${esc(d.text)}</textarea>
+    ${d.note?`<div class="small mute" style="margin-top:4px">${esc(d.note)}</div>`:""}${queue}<div class="err" id="draftErr"></div>
+    <div class="row" style="margin-top:8px"><button class="btn" data-act="draftsend" ${d.busy?"disabled":""}>Approve and send</button><button class="btn ghost" data-act="draft" ${d.busy?"disabled":""}>Redraft</button><button class="btn ghost" data-act="draftdiscard" ${d.busy?"disabled":""}>Discard</button></div></div>`}
+async function draftMsg(){const p=cur(),c=p.caseData,i=c.steps.findIndex(s=>!s.done);if(i<0)return;
+  const tpl=draftTemplate(p,c,i);
+  if(S.sample===undefined&&S.sampleP){try{await S.sampleP}catch(e){}}
+  if(!S.sample){S.draft[p.id]={text:tpl,orig:tpl,src:"template",note:"AI isn't available here, so this is a fixed template filled from the case."};return renderMain()}
+  const m=draftMeta(p,c,i),d=S.draft[p.id]={text:"",orig:"",src:"ai",busy:true};renderMain();
+  const last=c.msgs.slice(-3).map(x=>`${x[0]} · ${x[1]}: ${x[2]}`).join("\n")||"none";
+  const prompt=`You draft one patient message for CareLoop, a hackathon prototype. All people and data are made up. A nurse will edit and approve it; nothing is sent automatically.
+Write a ${m.phone?"short phone call script (at most 70 words) for the nurse to say":"single SMS (at most 300 characters)"} to ${p.first}, in plain, warm ${p.lang}.
+Rules:
+- Say who it is from (${m.phone?m.staff+" from "+m.clinic:"CareLoop for "+m.clinic}) and the one next action, with the date or slot.
+- Offer options that fit the barriers below, without repeating private details back to the patient.
+- Never diagnose. Never name a medicine, a dose or a condition. Call it "your blood pressure reading".
+- End with how to reply or change the time. Output only the message, no quotes, no notes.
+FACTS
+Current step: ${i+1} of 8, ${m.step}. Owner: ${m.owner}. Due: ${m.due}.
+Upcoming: ${m.upcoming.split("·")[0].trim()}
+Contact preference: ${m.contact}
+Barriers: ${m.barriers}
+Recent messages:
+${last}`;
+  log(p,`Drafted a message to ${p.first} with the AI`);
+  try{const res=await S.sample(prompt,{modelTier:"quick",cache:false,onText:({text})=>{d.text=text;if(S.view==="case")renderMain()}});d.text=(res.text||d.text).trim().replace(/^["“]|["”]$/g,"")}
+  catch(e){if(e&&e.code==="not_granted")S.sample=null;d.text=tpl;d.src="template";d.note=e&&e.code==="rate_limited"?"AI busy, so this is the fixed template.":"AI didn't answer, so this is the fixed template."}
+  if(d.src==="ai"&&(DRAFT_BAD.test(d.text)||!d.text)){d.text=tpl;d.src="template";d.note="The AI draft mentioned a medicine, dose or condition, so it was replaced with the fixed template."}
+  d.orig=d.text;d.busy=false;renderMain()}
+function draftAct(act){const p=cur(),c=p.caseData,i=c.steps.findIndex(s=>!s.done),d=S.draft[p.id];
+  if(act==="draft")return draftMsg();
+  if(act==="draftdiscard"){delete S.draft[p.id];return renderMain()}
+  if(act==="draftsend"){const t=$("draftIn").value.trim();if(!t){$("draftErr").textContent="The message is empty.";return}
+    if(DRAFT_BAD.test(t)){$("draftErr").textContent="Remove medicine, dose or condition names before sending.";return}
+    const m=draftMeta(p,c,i),how=(d.src==="ai"?"AI draft":"template")+(t!==d.orig?", edited":"");
+    c.msgs.push([clock(),`${m.phone?"Call script for":"SMS to"} ${p.first} · approved by ${m.staff}${m.when?" · queued for "+m.when:""}`,t]);
+    c.log.push([clock(),`Message to ${p.first} approved by ${m.staff} (${how})`]);log(p,`Approved a message to ${p.first} (${how})`);
+    delete S.draft[p.id];toast(m.when?`Queued: sends ${m.when}`:"Message sent");return render()}}
 
 /* ---------- access manager ---------- */
 function accessHTML(){const p=cur();
@@ -645,6 +705,7 @@ document.addEventListener("click",ev=>{const t=ev.target.closest("button,[data-a
    case "upload":return $("fileIn").click();
    case "emtoggle":return pinModal(p.emergencyFull?"Turn off full emergency access":"Turn on full emergency access",p.emergencyFull?"Ambulances and hospitals will see your emergency card only in an emergency.":"Ambulances and hospitals will see your whole record in an emergency. It's always flagged and reported to you.",()=>{p.emergencyFull=!p.emergencyFull;log(p,`Full access in an emergency turned ${p.emergencyFull?"on":"off"}`);toast(`Turned ${p.emergencyFull?"on":"off"}`);render()});
    case "stepdone":case "reject":case "escalate":case "reassign":return caseAct(d.act);
+   case "draft":case "draftsend":case "draftdiscard":return draftAct(d.act);
   }});
 document.addEventListener("submit",ev=>{ev.preventDefault();const f=ev.target,p=cur();
   if(f.id==="aiForm"){const v=$("aiIn").value.trim();if(!v){$("aiErr").textContent="Type a question first.";return}$("aiIn").value="";askAI(v)}
@@ -653,7 +714,7 @@ document.addEventListener("submit",ev=>{ev.preventDefault();const f=ev.target,p=
     if(!prov)return e("Choose a provider.");if(lvl==="sections"&&!secs.length)return e("Tick at least one section.");if(!/^\d{4}$/.test(pin))return e("Enter your 4-digit PIN.");
     let g=p.grants.find(g=>g.p===prov);if(!g){g={p:prov,why:"Chosen by "+p.first,since:"14 Nov 2026"};p.grants.push(g)}Object.assign(g,{level:lvl,secs:lvl==="full"?[]:secs,on:true});
     log(p,`Gave ${prov} ${lvl==="full"?"full access":"access to "+secs.map(s=>SECNAME[s]).join(", ")}`);toast(`${prov} notified`);render()}});
-document.addEventListener("input",ev=>{const id=ev.target.id;if(id==="aiIn"&&$("aiErr"))$("aiErr").textContent="";if(id==="caseEv"&&$("caseErr"))$("caseErr").textContent="";if(id==="noteIn")$("noteErr").textContent="";if(["gProv","gPin"].includes(id))$("gErr").textContent=""});
+document.addEventListener("input",ev=>{const id=ev.target.id;if(id==="aiIn"&&$("aiErr"))$("aiErr").textContent="";if(id==="caseEv"&&$("caseErr"))$("caseErr").textContent="";if(id==="noteIn")$("noteErr").textContent="";if(id==="draftIn"){const d=S.draft[cur().id];if(d&&!d.busy)d.text=ev.target.value;if($("draftErr"))$("draftErr").textContent=""}if(["gProv","gPin"].includes(id))$("gErr").textContent=""});
 document.addEventListener("change",ev=>{if(["gProv"].includes(ev.target.id))$("gErr").textContent=""});
 document.addEventListener("keydown",ev=>{if(ev.key==="Escape"&&!$("modal").hidden)closeModal()});
 $("modal").addEventListener("click",ev=>{if(ev.target===$("modal"))closeModal()});
