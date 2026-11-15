@@ -19,7 +19,10 @@ CareLoop follows a person from a screening result to documented care. Each case 
 - **A patient access manager:** full access or chosen sections, kept on until the patient turns it off, plus access requests and an emergency-access switch.
 - **An audit log** for every view, file opened, upload, request and emergency access.
 - **A closure dashboard** built from a simulated group of 60 cases: time to notification, confirmation and care; where cases drop off and why; overdue cases; small groups hidden.
-- **An AI record assistant:** answers only from what the current viewer may see, cites its sources, and never diagnoses or advises. It runs only on the claude.ai version. Here it shows as unavailable.
+- **A record assistant ("Ask the record"):** answers only from what the current viewer may see and cites its sources.
+  - On the claude.ai version it uses AI for signed-in viewers.
+  - Elsewhere, including this GitHub version, it falls back to an offline keyword search of the record, labelled "not AI".
+  - Questions asking for a diagnosis, treatment or a dose get a fixed refusal before anything reaches the AI.
 
 ## Limits
 This is a single browser-only page with made-up people and data. It isn't secure and isn't for clinical use. Fingerprint scans, codes and PINs are simulated. The hypertension rule (140/90 or above prompts a referral; 180/120 or above escalates the same day) is rule-based. It is not a diagnosis.
