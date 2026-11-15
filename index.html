@@ -395,7 +395,7 @@ function aiCard(p,a){const st=S.ai[S.role+":"+p.id]||(S.ai[S.role+":"+p.id]={msg
   const offline=S.sample===null;
   let body="";
   if(S.aiOpen){
-    body=`<div class="small mute" style="margin-top:8px">${offline?"AI isn't available here; it runs on the claude.ai version for signed-in viewers. Answers below come from an offline keyword search of the record.":"Sees only what you can see"+(a.emOnly?" (emergency card)":"")+". Sensitive sections are never sent."}</div>`+
+    body=`<div class="small mute" style="margin-top:8px">${offline?"AI isn't available here; it runs on the Azure version, and on claude.ai for signed-in viewers. Answers below come from an offline keyword search of the record.":"Sees only what you can see"+(a.emOnly?" (emergency card)":"")+". Sensitive sections are never sent."+(S.aiVia?" Answers by "+S.aiVia+".":"")}</div>`+
       st.msgs.map(m=>`<div class="msg ${m.r}">${m.r==="a"?citeHTML(m.t):esc(m.t)}${m.off?`<div class="small mute" style="margin-top:4px">${m.note?esc(m.note)+" · ":""}Offline record search · not AI</div>`:""}</div>`).join("")+
       `<div class="tags" style="margin-top:8px">${(AIQ[S.role]||[]).map((q,i)=>`<button class="chip sm" data-aiq="${i}"${st.busy?" disabled":""}>${esc(q)}</button>`).join("")}${st.msgs.length?`<button class="chip sm" data-act="aiclear" style="background:transparent;box-shadow:inset 0 0 0 1px var(--line)">Clear chat</button>`:""}</div>
       <form id="aiForm" style="display:flex;gap:6px;margin-top:8px"><input type="text" id="aiIn" maxlength="300" autocomplete="off" placeholder="${S.role==="patient"?"When is my next check?":"Ask about this record"}" aria-label="Question for the record assistant"><button class="btn" aria-label="Send"${st.busy?" disabled":""}>${ic("send")}</button></form><div class="err" id="aiErr" role="status">${esc(st.err)}</div>`+
@@ -660,7 +660,11 @@ $("modal").addEventListener("click",ev=>{if(ev.target===$("modal"))closeModal()}
 $("fileIn").addEventListener("change",ev=>{const f=ev.target.files[0];if(!f)return;const p=cur(),e=selEvent(p);(e.up=e.up||[]).push({n:f.name,t:"upload",mime:f.type,size:f.size,url:URL.createObjectURL(f),held:"Patient upload"});log(p,`Uploaded file: ${f.name} (patient-reported)`);ev.target.value="";toast("File added, labelled patient-reported");render()});
 
 render();
-S.sampleP=(async()=>{try{S.sample=window.claude&&window.claude.use?await window.claude.use("sample"):null}catch(e){S.sample=null}if(S.aiOpen)renderMain()})();
+/* Azure version: /api/ask is a small Azure Function that forwards to Azure OpenAI; the key stays on the server. */
+async function azureAI(){try{const r=await fetch("/api/ask",{signal:AbortSignal.timeout(5000)});const j=r.ok&&/json/.test(r.headers.get("content-type")||"")?await r.json():null;if(!j||!j.ok)return null}catch(e){return null}
+  S.aiVia="Azure OpenAI";
+  return async msgs=>{const r=await fetch("/api/ask",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({messages:msgs}),signal:AbortSignal.timeout(30000)});const j=await r.json().catch(()=>({}));if(!r.ok)throw{code:r.status===429?"rate_limited":"error",message:j.error||""};return{text:j.text||""}}}
+S.sampleP=(async()=>{try{S.sample=window.claude&&window.claude.use?await window.claude.use("sample"):null}catch(e){S.sample=null}if(!S.sample)S.sample=await azureAI();if(S.aiOpen)renderMain()})();
 </script>
 </body>
 </html>
