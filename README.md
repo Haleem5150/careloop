@@ -24,6 +24,10 @@ CareLoop follows a person from a screening result to documented care. Each case 
   - On the claude.ai version it uses AI for signed-in viewers.
   - Elsewhere, including this GitHub version, it falls back to an offline keyword search of the record, labelled "not AI".
   - Questions asking for a diagnosis, treatment or a dose get a fixed refusal before anything reaches the AI.
+- **Patient message drafts:** on an open case, clinic staff can draft the next SMS or call script.
+  - The draft uses the patient's contact preferences and barriers, for example Saturday slots for Sara or an early slot for Daniel.
+  - On the claude.ai version the AI writes it; elsewhere a fixed template does, labelled "not AI".
+  - A person edits and approves every message. Drafts that name a medicine, dose or condition are blocked. Each approval is logged.
 
 ## Limits
 This is a single browser-only page with made-up people and data. It isn't secure and isn't for clinical use. Fingerprint scans, codes and PINs are simulated. The hypertension rule (140/90 or above prompts a referral; 180/120 or above escalates the same day) is rule-based. It is not a diagnosis.
