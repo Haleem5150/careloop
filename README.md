@@ -7,10 +7,11 @@ CareLoop follows a person from a screening result to documented care. Each case 
 **Live demo:** see this repository's GitHub Pages link.
 
 ## What's in the prototype
-- **Three patient profiles:**
+- **Four patient profiles:**
   - Sara: the loop is in progress
   - Daniel: the loop broke, then was rescued
   - Mary: an emergency, with full access allowed
+  - Grace: a 2021 cervical screen with no follow-up, then advanced cancer. She is in palliative care with a DNR decision on her emergency card. It reads "CPR only, give all other care" and shows who decided and when. Crews see it even with emergency-card-only access.
 - **A case view** with eight steps, from Flagged to Closed: owners, due dates, evidence, escalation, rejection and reassignment, and messages to the patient.
 - **Role-based views** for the patient, a clinic, a pharmacy, an ambulance, an admin and a regulator.
 - **Simulated fingerprint identification:**
