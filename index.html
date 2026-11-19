@@ -11,7 +11,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,400,0,0&icon_names=auto_awesome,check_circle,chevron_left,chevron_right,close,dashboard,description,do_not_disturb_on,emergency,fingerprint,history,image,key,lock,person,route,send,shield,upload,warning&display=block">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,400,0,0&icon_names=auto_awesome,check_circle,checklist,chevron_left,chevron_right,close,dashboard,description,do_not_disturb_on,emergency,fingerprint,history,image,key,lock,person,route,send,shield,upload,warning&display=block">
 <style>
 /* Layout: cream frame, warm white rounded cards; profile = left column (identity, assistant, emergency, audit) + right column (case, plan, timeline, details)
    Palette: cream + near-black + pastel yellow / pink / olive / periwinkle; orange marks the selected timeline bar; red kept for safety alerts */
@@ -61,6 +61,7 @@ button{cursor:pointer}
 .mute{color:var(--mute)}.small{font-size:12px}
 .kv{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid var(--line);font-size:13px}
 .kv:last-child{border-bottom:none}
+.kv.fx>span:first-child{flex-shrink:1;min-width:0;overflow-wrap:anywhere}.kv.fx>span:last-child{flex-shrink:0}
 .kv>span:first-child{color:var(--mute);flex-shrink:0}
 .kv>span:last-child{text-align:right}
 .tag{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 10px;font-size:12px;background:var(--tint);color:var(--ink)}
@@ -160,6 +161,10 @@ td{padding:7px 8px;border-bottom:1px solid var(--line);font-variant-numeric:tabu
 .xray{width:100%;border-radius:12px;background:#0b0d12;display:block}
 .doc{background:var(--tint);border-radius:12px;padding:12px 14px;font-size:13px;white-space:pre-wrap}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;align-items:start}
+.wl{display:flex;flex-direction:column}
+.wlr{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 10px;border-bottom:1px solid var(--line);font-size:13px}
+.wlr:last-child{border-bottom:none}.wlr.need{border-left:3px solid var(--alert)}
+.wlr b{font-weight:500}.wlm{min-width:0}.wla{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
 @media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}.brand h1{font-size:20px}}
 </style>
 
@@ -266,7 +271,7 @@ const P=[
   {id:"m4",cat:"vac",title:"COVID-19 vaccine",date:"2021",place:"Patient upload",trust:0,rows:[["Doses","2"]]},
   {id:"m5",cat:"read",title:"BP case closed",date:"Jun to Aug 2024",place:"Family Health Clinic",trust:1,rows:[["Flagged","158/94 · 4 Jun 2024, City Pharmacy"],["Confirmed","156/92 · 11 Jun"],["Plan","Amlodipine 5 mg daily"],["Closed","132/80 · 20 Aug, clinic note"],["Time to care","7 days"]],files:[{n:"Clinic note",t:"doc",d:"Family Health Clinic · 20 Aug 2024\n\nBP 132/80 on amlodipine 5 mg.\nTarget reached. Case closed: evidence attached.\nNurse A. Bello"}],caseLink:true},
   {id:"m6",cat:"read",title:"INR check",date:"3 Sep 2026",place:"City Pharmacy",by:"Pharm. J. Osei",trust:1,rows:[["INR","2.9 (in range)"],["BP","130/78"],["eGFR","58 (lab, Sep 2026)"]],rel:["m3"]},
-  {id:"m7",cat:"adm",title:"Collapsed at the market",date:"14 Nov 2026",place:"City Ambulance",by:"Paramedic T. Musa",trust:1,rows:[["Found","No ID on her"],["ID","Emergency fingerprint search (one-to-many)"],["Access","Full record, by Mary's setting"],["Taken to","Central General Hospital"]],files:[{n:"Ambulance report",t:"doc",d:"City Ambulance · 14 Nov 2026 11:00\n\nFemale, about 70, collapsed at the market. No ID.\nIdentified by emergency fingerprint search.\nRecord: warfarin, mechanical valve, contrast allergy.\nTaken to Central General Hospital.\nParamedic T. Musa"}],rel:["m3","m2"]}],
+  {id:"m7",cat:"adm",title:"Collapsed at the market",date:"14 Nov 2026",place:"City Ambulance",by:"Paramedic T. Musa",trust:1,rows:[["Found","No ID on her"],["ID","Emergency fingerprint search on the ambulance's registered reader (one-to-many)"],["Access","Full record, by Mary's setting"],["Taken to","Central General Hospital"]],files:[{n:"Ambulance report",t:"doc",d:"City Ambulance · 14 Nov 2026 11:00\n\nFemale, about 70, collapsed at the market. No ID.\nIdentified by emergency fingerprint search (registered reader).\nRecord: warfarin, mechanical valve, contrast allergy.\nTaken to Central General Hospital.\nParamedic T. Musa"}],rel:["m3","m2"]}],
  caseData:{title:"Raised BP case (2024)",opened:"4 Jun 2024 11:30",openedD:new Date(2024,5,4),status:"closed",
   steps:[st("City Pharmacy (rule)","4 Jun 2024","4 Jun 2024 11:30","BP 158/94"),st("City Pharmacy (phone call)","4 Jun 2024","4 Jun 2024 11:35","Phone call; Helen copied"),st("Mary Cole","5 Jun 2024","4 Jun 2024 11:35","Confirmed by phone"),st("Family Health Clinic · Nurse A. Bello","5 Jun 2024","5 Jun 2024 09:10","Appointment 11 Jun"),st("Nurse A. Bello","11 Jun 2024","11 Jun 2024 10:05","156/92 confirmed"),st("Dr N. Haddad, Central General","18 Jun 2024","11 Jun 2024 15:00","Reviewed with valve history"),st("Dr N. Haddad","18 Jun 2024","11 Jun 2024 15:10","Amlodipine 5 mg daily; review in 8 weeks"),st("Nurse A. Bello","31 Aug 2024","20 Aug 2024 10:30","BP 132/80 · clinic note · evidence attached")],
   metrics:{notify:"5 min",confirm:"7 days",care:"7 days"},
@@ -276,7 +281,7 @@ const P=[
  emergency:{when:"14 Nov 2026 11:02",by:"City Ambulance · Paramedic T. Musa"},
  grants:[{p:"Central General Hospital",level:"full",secs:[],on:true,since:"May 2018",why:"Cardiology care"},{p:"Family Health Clinic",level:"sections",secs:["allergies","conditions","medications","readings"],on:true,since:"Jun 2024",why:"Chosen by Mary"},{p:"City Pharmacy",level:"sections",secs:["allergies","medications"],on:true,since:"May 2018",why:"Pharmacy default"}],
  requests:[],emergencyFull:true,
- audit:[A("14 Nov 2026 11:41","Central General Hospital · Dr N. Haddad","Opened full record (Mary's grant)"),A("14 Nov 2026 11:03","CareLoop","Mary and Helen Cole notified of emergency access"),A("14 Nov 2026 11:02","City Ambulance · Paramedic T. Musa","Full record opened by Mary's emergency setting",true),A("14 Nov 2026 11:01","City Ambulance · Paramedic T. Musa","Emergency fingerprint search (one-to-many): matched",true),A("3 Sep 2026","City Pharmacy · Pharm. J. Osei","INR 2.9 added")]},
+ audit:[A("14 Nov 2026 11:41","Central General Hospital · Dr N. Haddad","Opened full record (Mary's grant)"),A("14 Nov 2026 11:03","CareLoop","Mary and Helen Cole notified of emergency access"),A("14 Nov 2026 11:02","City Ambulance · Paramedic T. Musa","Full record opened by Mary's emergency setting",true),A("14 Nov 2026 11:01","City Ambulance · Paramedic T. Musa","Emergency fingerprint search (one-to-many, registered reader): matched",true),A("3 Sep 2026","City Pharmacy · Pharm. J. Osei","INR 2.9 added")]},
 
 {id:"grace",name:"Grace Adeyemi",first:"Grace",sex:"F",age:61,clid:"CL-000126",lang:"English",fp:"good",contact:"Tunde Adeyemi (son)",
  sum:[["Date of birth","3 Apr 1965"],["Blood group","B+"],["Genotype","AA"],["Weight, height","52 kg, 160 cm (BMI 20.3)"],["Kidney (eGFR)","71 · Oct 2026"],["Communication","Tires easily; keep visits short"],["National ID","Verified"],["Fingerprint","Enrolled"],["Language","English, Yoruba"],["Emergency contact","Tunde Adeyemi (son)"],["Decides if unable","Tunde Adeyemi (son)"]],
@@ -341,7 +346,7 @@ function renderTop(){
   const showP=!["admin","regulator"].includes(S.role);
   $("patients").innerHTML=showP?`<span class="lbl">Patient</span>`+P.map((p,i)=>`<button class="chip${i===S.pid?" on":""}" data-pid="${i}">${esc(p.name)}</button>`).join(""):"";
   $("roles").innerHTML=`<span class="lbl">Viewing as</span>`+Object.entries(ROLES).map(([k,r])=>`<button class="chip sm${k===S.role?" on":""}" data-role="${k}">${esc(r.label)}${k==="ambulance"?" (emergency)":""}</button>`).join("");
-  const T={patient:[["profile","person","Profile"],["case","route","Case"],["access","key","Access"],["audit","history","Audit log"]],clinic:[["profile","person","Profile"],["case","route","Case"]],pharmacy:[["profile","person","Profile"]],ambulance:[["profile","person","Profile"]],admin:[["dashboard","dashboard","Dashboard"]],regulator:[["trail","shield","Audit trail"]]}[S.role];
+  const T={patient:[["profile","person","Profile"],["case","route","Case"],["access","key","Access"],["audit","history","Audit log"]],clinic:[["profile","person","Profile"],["case","route","Case"],["worklist","checklist","Worklist"]],pharmacy:[["profile","person","Profile"]],ambulance:[["profile","person","Profile"]],admin:[["dashboard","dashboard","Dashboard"]],regulator:[["trail","shield","Audit trail"]]}[S.role];
   if(!T.some(t=>t[0]===S.view))S.view=T[0][0];
   $("tabs").innerHTML=T.length>1?T.map(t=>`<button class="tab${t[0]===S.view?" on":""}" data-view="${t[0]}">${ic(t[1])}${t[2]}</button>`).join(""):"";
   const p=cur();let html="",flag=false;
@@ -359,7 +364,7 @@ function gateHTML(){const p=cur(),amb=S.role==="ambulance";
   return `<div class="card" style="max-width:520px;margin:20px auto;text-align:center;padding:28px 22px">
    <div class="scan done" style="margin-top:0">${ic("fingerprint")}</div>
    <h2 style="justify-content:center;font-size:20px">${amb?"Emergency fingerprint search":"Confirm who the patient is"}</h2>
-   <p class="mute" style="margin:6px auto 16px;max-width:42ch">${amb?"The patient can't give ID. A one-to-many search compares the fingerprint with all enrolled patients. It's flagged and reported.":`Ask the patient to place a finger on the facility's registered reader. A one-to-one check matches it to ${esc(p.first)}'s ID.`}</p>
+   <p class="mute" style="margin:6px auto 16px;max-width:42ch">${amb?"The patient can't give ID. The crew scans a finger on the ambulance's registered reader, and a one-to-many search compares it with all enrolled patients. It's flagged and reported.":`Ask the patient to place a finger on the facility's registered reader. A one-to-one check matches it to ${esc(p.first)}'s ID.`}</p>
    <button class="btn" data-act="scan">${ic("fingerprint")} Simulated scan</button>
    <p class="small mute" style="margin-top:12px">Demo: you're scanning ${esc(p.name)}. The scan is simulated; no reader is connected.</p></div>`}
 
@@ -628,8 +633,8 @@ function accessHTML(){const p=cur();
   const pend=p.requests.filter(r=>r.status==="pending");
   return `<div class="grid2">
   <section class="card"><h2>${ic("emergency")}Full access in an emergency</h2><div style="display:flex;gap:12px;align-items:flex-start"><p class="small" style="margin:0;flex:1">If you can't speak for yourself, a registered ambulance or hospital can open your <b>whole record</b> after an emergency fingerprint search. When it's off they see your emergency card only. Either way it's flagged and you and ${esc(p.contact)} are told.</p><button class="switch${p.emergencyFull?" on":""}" data-act="emtoggle" role="switch" aria-checked="${p.emergencyFull}" aria-label="Full access in an emergency"></button></div><p class="small mute" style="margin:8px 0 0">Off by default for new patients. ${esc(p.first)} turned it on.</p></section>
-  <section class="card"><h2>${ic("key")}Requests<span class="sub">${pend.length} waiting</span></h2>${pend.length?pend.map((r,i)=>`<div class="kv" style="align-items:center"><span><b style="color:var(--ink);font-weight:500">${esc(r.p)}</b><br>${r.sec==="full"?"Full access":esc(SECNAME[r.sec])} · ${esc(r.when)}</span><span class="row"><button class="btn" data-approve="${p.requests.indexOf(r)}">Approve</button><button class="btn ghost" data-decline="${p.requests.indexOf(r)}">Decline</button></span></div>`).join(""):`<p class="small mute" style="margin:0">No requests. When a provider asks to see a locked section, it shows up here.</p>`}</section>
-  <section class="card"><h2>${ic("shield")}Who can see your record</h2>${p.grants.map((g,i)=>`<div class="kv" style="align-items:center"><span style="color:var(--ink)"><b style="font-weight:500">${esc(g.p)}</b> <span class="tag ok">Licence verified</span><br><span class="small mute">${g.level==="full"?"Full access":g.secs.map(s=>SECNAME[s]).join(", ")} · ${esc(g.why)} · since ${esc(g.since)}</span></span><span>${g.on?`<button class="btn ghost" data-revoke="${i}">Remove</button>`:`<span class="tag">Removed</span>`}</span></div>`).join("")}<p class="small mute" style="margin:8px 0 0">Access stays on until you turn it off. The provider is told when you change it.</p></section>
+  <section class="card"><h2>${ic("key")}Requests<span class="sub">${pend.length} waiting</span></h2>${pend.length?pend.map((r,i)=>`<div class="kv fx" style="align-items:center"><span><b style="color:var(--ink);font-weight:500">${esc(r.p)}</b><br>${r.sec==="full"?"Full access":esc(SECNAME[r.sec])} · ${esc(r.when)}</span><span class="row"><button class="btn" data-approve="${p.requests.indexOf(r)}">Approve</button><button class="btn ghost" data-decline="${p.requests.indexOf(r)}">Decline</button></span></div>`).join(""):`<p class="small mute" style="margin:0">No requests. When a provider asks to see a locked section, it shows up here.</p>`}</section>
+  <section class="card"><h2>${ic("shield")}Who can see your record</h2>${p.grants.map((g,i)=>`<div class="kv fx" style="align-items:center"><span style="color:var(--ink)"><b style="font-weight:500">${esc(g.p)}</b> <span class="tag ok">Licence verified</span><br><span class="small mute">${g.level==="full"?"Full access":g.secs.map(s=>SECNAME[s]).join(", ")} · ${esc(g.why)} · since ${esc(g.since)}</span></span><span>${g.on?`<button class="btn ghost" data-revoke="${i}">Remove</button>`:`<span class="tag">Removed</span>`}</span></div>`).join("")}<p class="small mute" style="margin:8px 0 0">Access stays on until you turn it off. The provider is told when you change it.</p></section>
   <section class="card"><h2>${ic("person")}Give access</h2><form id="grantForm">
    <label class="small" for="gProv">Doctor, hospital, clinic, pharmacy or ambulance</label><select id="gProv"><option value="">Choose a provider</option>${PROVIDERS.map(x=>`<option value="${esc(x.n)}"${x.ok?"":" disabled"}>${esc(x.n)} · ${esc(x.kind)}${x.ok?"":" ("+x.why+")"}</option>`).join("")}</select>
    <div class="row" style="margin:10px 0 4px"><label class="small"><input type="radio" name="gLevel" value="full" checked> Full access</label><label class="small"><input type="radio" name="gLevel" value="sections"> Chosen sections</label></div>
@@ -639,6 +644,18 @@ function accessHTML(){const p=cur();
 
 /* ---------- audit views ---------- */
 function auditHTML(){const p=cur();return `<section class="card"><h2>${ic("history")}Everything that happened to your record<span class="sub">${p.audit.length} entries</span></h2><p class="small mute" style="margin:0 0 8px">Every view, file opened, upload, request and emergency access. Flagged entries are in red.</p><div class="audit">${p.audit.map(audRow).join("")}</div></section>`}
+/* ---------- clinic worklist: every open case this clinic owns, most urgent first ---------- */
+function worklistHTML(){const me=R().provider,rows=[];
+  P.forEach((p,pi)=>{const c=p.caseData;if(c.status==="closed")return;const i=c.steps.findIndex(s=>!s.done);if(i<0)return;const s=c.steps[i];
+    const late=c.status==="escalated"?36:s.over?1:0,need=c.status!=="open"||!!s.over||!!s.rej;
+    const st=c.status==="escalated"?["Escalated","mod"]:c.status==="unassigned"?["Unassigned","sev"]:s.rej?["Rejected","sev"]:s.over?["Overdue","sev"]:["On track","ok"];
+    rows.push({id:p.clid,who:p.name,pi,st,step:STEP_NAMES[i],owner:s.owner,when:need&&late?`${late} days late`:"Due "+s.due.replace(/ 2026$/,""),need,late})});
+  const L={open:["On track","ok"],overdue:["Overdue","sev"],lost:["Lost to follow-up","sev"],rejected:["Rejected","sev"],unassigned:["Unassigned","sev"],escalated:["Escalated","mod"]};
+  COHORT.filter(c=>c.f===me&&c.s!=="closed").forEach(c=>rows.push({id:c.id,who:"",st:L[c.s],step:STEP_NAMES[Math.min(c.prog,7)],owner:c.owner,when:c.late?`${c.late} days late${c.reason?" · "+c.reason:""}`:"On track",need:c.s!=="open",late:c.late}));
+  rows.sort((a,b)=>(b.need-a.need)||(b.late-a.late));const n=rows.filter(r=>r.need).length;
+  return `<section class="card"><h2>${ic("route")}Worklist · ${esc(me)}<span class="sub">${rows.length} open · ${n} need action</span></h2>
+  <p class="small mute" style="margin:0 0 8px">Every open case this clinic owns, most urgent first. Open a case to confirm the patient's identity and update it. Rows marked "simulated" have no patient record behind them.</p>
+  <div class="wl">${rows.map(r=>`<div class="wlr${r.need?" need":""}"><div class="wlm"><b>${r.who?esc(r.who):"Simulated case"}</b> <span class="small mute">${esc(r.id)}</span><div class="small">${esc(r.step)} · ${esc(r.owner)}</div><div class="small${r.need?"":" mute"}"${r.need?' style="color:var(--alert-ink)"':""}>${esc(r.when)}</div></div><div class="wla"><span class="tag ${r.st[1]}">${r.st[0]}</span>${r.who?`<button class="btn ghost" data-wl="${r.pi}">Open case</button>`:""}</div></div>`).join("")}</div></section>`}
 function trailHTML(){const all=[];P.forEach(p=>p.audit.forEach(x=>all.push(Object.assign({pt:p.clid},x))));
   return `<section class="card"><h2>${ic("shield")}Audit trail, all records<span class="sub">${all.length} entries · ${all.filter(x=>x.flag).length} flagged</span></h2><p class="small mute" style="margin:0 0 8px">Patients appear by CareLoop ID only. No medical content beyond the action.</p><div class="tw"><table><thead><tr><th>When</th><th>Record</th><th>Who</th><th>Action</th></tr></thead><tbody>${all.map(x=>`<tr${x.flag?' style="color:var(--alert-ink)"':""}><td>${esc(x.when)}</td><td>${x.pt}</td><td>${esc(x.who)}</td><td>${esc(x.what)}${x.flag?" · flagged":""}</td></tr>`).join("")}</tbody></table></div></section>`}
 
@@ -681,7 +698,7 @@ function dashHTML(){const C=COHORT,n=C.length,closed=C.filter(c=>c.s==="closed")
 function openModal(html){$("sheet").innerHTML=html;$("modal").hidden=false;const f=$("sheet").querySelector("input,button");if(f)f.focus()}
 function closeModal(){$("modal").hidden=true;$("sheet").innerHTML=""}
 function scanFlow(){const p=cur(),amb=S.role==="ambulance";
-  openModal(`<h3>${amb?"Emergency fingerprint search":"Fingerprint check"}</h3><p class="small mute" style="margin:0">Simulated scan · ${amb?"one-to-many search":"one-to-one check"}</p><div class="scan" id="scanC">${ic("fingerprint")}</div><p id="scanMsg" style="text-align:center;margin:0">Reading the finger…</p><div id="scanMore"></div>`);
+  openModal(`<h3>${amb?"Emergency fingerprint search":"Fingerprint check"}</h3><p class="small mute" style="margin:0">Simulated scan · registered reader · ${amb?"one-to-many search":"one-to-one check"}</p><div class="scan" id="scanC">${ic("fingerprint")}</div><p id="scanMsg" style="text-align:center;margin:0">Reading the finger…</p><div id="scanMore"></div>`);
   setTimeout(()=>{const c=$("scanC");if(!c)return;
     if(p.fp==="poor"){c.classList.add("fail");$("scanMsg").innerHTML=`<b>Scan quality too low.</b> Worn prints are common in manual work. Use another way to confirm identity:`;
       $("scanMore").innerHTML=`<button class="opt" data-fb="otp">${ic("send")}<span><b style="font-weight:500">One-time code</b><br><span class="small mute">Sent to the patient's registered phone</span></span></button><button class="opt" data-fb="pin">${ic("person")}<span><b style="font-weight:500">National ID card and PIN</b><br><span class="small mute">Check the photo, the patient types their PIN</span></span></button><button class="opt" data-fb="staff">${ic("warning")}<span><b style="font-weight:500">Staff-assisted entry</b><br><span class="small mute">Flagged in the audit log for review</span></span></button><button class="btn ghost" style="margin-top:12px" data-act="close">Cancel</button>`;
@@ -697,7 +714,7 @@ function fallbackGo(kind){const v=$("fbIn").value.trim(),e=m=>$("fbErr").textCon
   if(kind==="pin"){if(!$("fbId").checked)return e("Check the ID card photo first.");if(v!=="2580")return e("That PIN doesn't match. Ask the patient to type it again.");verify("National ID card and PIN (fingerprint failed)",false)}
   if(kind==="staff"){if(v.length<8)return e("Give a short reason. It goes in the audit log.");verify("staff-assisted entry (flagged): "+v,true)}}
 function verify(method,flag){const p=cur(),amb=S.role==="ambulance";S.verified[S.role+":"+p.id]={method,flag};
-  if(amb){log(p,`Emergency fingerprint search (one-to-many): matched`,true);log(p,p.emergencyFull?"Full record opened by patient's emergency setting":"Emergency card opened",true);p.audit.unshift(A(clock(),"CareLoop",`${p.first} and ${p.contact} notified of emergency access`))}
+  if(amb){log(p,`Emergency fingerprint search (one-to-many, registered reader): matched`,true);log(p,p.emergencyFull?"Full record opened by patient's emergency setting":"Emergency card opened",true);p.audit.unshift(A(clock(),"CareLoop",`${p.first} and ${p.contact} notified of emergency access`))}
   else log(p,`Opened record · identified by ${method}`,flag);
   closeModal();render()}
 function fileModal(f){const p=cur(),e=selEvent(p);log(p,`Opened file: ${f.n}`);
@@ -710,7 +727,7 @@ function pinModal(title,text,onOk){openModal(`<h3>${esc(title)}</h3><p class="sm
 
 /* ---------- render + events ---------- */
 function renderMain(){const v=S.view;let h="";
-  if(v==="profile")h=needsGate()?gateHTML():profileHTML();else if(v==="case")h=needsGate()?gateHTML():caseHTML();else if(v==="access")h=accessHTML();else if(v==="audit")h=auditHTML();else if(v==="dashboard")h=dashHTML();else if(v==="trail")h=trailHTML();
+  if(v==="profile")h=needsGate()?gateHTML():profileHTML();else if(v==="case")h=needsGate()?gateHTML():caseHTML();else if(v==="access")h=accessHTML();else if(v==="audit")h=auditHTML();else if(v==="dashboard")h=dashHTML();else if(v==="trail")h=trailHTML();else if(v==="worklist")h=worklistHTML();
   const ae=document.activeElement,keep=ae&&ae.id;const val=keep&&ae.value;
   $("main").innerHTML=h;
   if(keep&&$(keep)){$(keep).value=val;if(keep!=="aiIn"||!S.ai[S.role+":"+cur().id].busy)$(keep).focus()}}
@@ -720,6 +737,7 @@ function render(){
 
 document.addEventListener("click",ev=>{const t=ev.target.closest("button,[data-act]");if(!t)return;const d=t.dataset,p=cur();
   if(d.pid!=null){S.pid=+d.pid;return render()}
+  if(d.wl!=null){S.pid=+d.wl;S.view="case";window.scrollTo({top:0});return render()}
   if(d.role){S.role=d.role;S.view={admin:"dashboard",regulator:"trail"}[d.role]||"profile";return render()}
   if(d.view){S.view=d.view;window.scrollTo({top:0});return render()}
   if(d.filter){S.filter=d.filter;return renderMain()}
