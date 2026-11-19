@@ -165,7 +165,23 @@ td{padding:7px 8px;border-bottom:1px solid var(--line);font-variant-numeric:tabu
 .wlr{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 10px;border-bottom:1px solid var(--line);font-size:13px}
 .wlr:last-child{border-bottom:none}.wlr.need{border-left:3px solid var(--alert)}
 .wlr b{font-weight:500}.wlm{min-width:0}.wla{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.start{background:var(--card);border-radius:20px;padding:12px 16px;display:flex;flex-direction:column;gap:10px}
+.start .sh{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.start .sh h2{font-size:16px}
+.demos{display:flex;flex-wrap:wrap;gap:8px}
+.demo{border:none;border-radius:14px;padding:9px 12px;text-align:left;background:var(--tint);font-size:13px;display:flex;flex-direction:column;gap:1px;flex:1 1 200px;min-width:0}
+.demo b{font-weight:600}.demo span{font-size:12px;color:var(--mute)}
+.demo.on{background:var(--yellow)}.demo.on span{color:#3D3A33}
+.demo.how{background:var(--indigo);color:var(--on-indigo)}.demo.how span{color:#D9D3C7}
+.hint{font-size:13px;background:var(--blue-bg);border-radius:12px;padding:8px 12px}
+.sheet.wide{max-width:780px}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:stretch;margin:6px 0 4px}
+.fb{background:var(--tint);border-radius:12px;padding:8px 10px;font-size:12px;flex:1 1 150px;min-width:0}
+.fb b{display:block;font-size:13px;font-weight:600}
+.howh{font-family:var(--display);font-size:15px;font-weight:600;margin:14px 0 4px}
+.howl{margin:0;padding-left:18px;font-size:13px}.howl li{margin:2px 0}
 @media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}.brand h1{font-size:20px}}
+@media (max-width:560px){.demo{flex:1 1 calc(50% - 4px);padding:8px 10px}.demo span{display:none}.start .sh span{display:none}.hint{font-size:12.5px}}
 </style>
 
 <div class="wrap">
@@ -173,6 +189,7 @@ td{padding:7px 8px;border-bottom:1px solid var(--line);font-variant-numeric:tabu
     <div class="brand"><div class="logo"><span class="ms" aria-hidden="true">route</span></div><div><h1>CareLoop</h1><small>From screening result to documented care</small></div></div>
     <div class="row" id="patients"></div>
   </header>
+  <section class="start" id="start" aria-label="Start here"></section>
   <div class="row" id="roles"></div>
   <nav class="tabs" id="tabs" aria-label="Views"></nav>
   <div id="idbar"></div>
@@ -334,7 +351,7 @@ const P=[
  audit:[A("2 Nov 2026 18:20","City Pharmacy · Pharm. J. Osei","Viewed medicines (pharmacy default); dispensing added"),A("2 Nov 2026 17:30","Family Health Clinic · Dr M. Okafor","Opened a sensitive section (Hannah's share)"),A("30 Oct 2026 11:05","Hannah Thomas","Shared a sensitive section with Family Health Clinic only"),A("30 Oct 2026 11:05","Hannah Thomas","Turned off paper letters"),A("30 Oct 2026 10:40","CareLoop rule","Case opened by rule"),A("30 Oct 2026 10:30","Family Health Clinic · Nurse A. Bello","Fingerprint matched (one-to-one); antenatal visit added")]}];
 function SN(c,k){return (c.stepNames||STEP_NAMES)[k]}
 
-const S={pid:0,role:"patient",view:"profile",sel:{},filter:"all",verified:{},aiOpen:false,ai:{},sample:undefined,seen:{}};
+const S={pid:0,role:"clinic",view:"worklist",demo:null,sel:{},filter:"all",verified:{},aiOpen:false,ai:{},sample:undefined,seen:{}};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const ic=n=>`<span class="ms" aria-hidden="true">${n}</span>`;
@@ -381,6 +398,7 @@ function renderTop(){
   if(S.role==="patient")html=`${ic("person")}<span>Signed in as <b>${esc(p.name)}</b> with National ID and a one-time code (simulated). You see everything, can add files and decide who has access.</span>`;
   else if(S.role==="admin")html=`${ic("dashboard")}<span>Admin login. Aggregate numbers only: no names or records.</span>`;
   else if(S.role==="regulator")html=`${ic("shield")}<span>Regulator login. Audit trail only: who opened what, when and how. No medical content.</span>`;
+  else if(S.view==="worklist")html=`${ic("checklist")}<span><b>${esc(R().staff)}</b> · ${esc(R().provider)} · staff login with 2FA. Open a case to confirm the patient's identity and update it.</span>`;
   else{const v=S.verified[S.role+":"+p.id];
     if(!v)html=`${ic("lock")}<span><b>${esc(R().staff)}</b> · ${esc(R().provider)} · staff login with 2FA. The patient's identity isn't confirmed yet.</span>`;
     else{const a=access(p);flag=!!(a.flag||v.flag);html=`${ic(flag?"warning":"fingerprint")}<span><b>${esc(R().staff)}</b> · ${esc(R().provider)} · staff login with 2FA · patient identified by ${esc(v.method)} · <b>Access:</b> ${esc(a.label)}</span>`}}
@@ -729,7 +747,7 @@ function dashHTML(){const C=COHORT,n=C.length,closed=C.filter(c=>c.s==="closed")
 
 /* ---------- modal ---------- */
 function openModal(html){$("sheet").innerHTML=html;$("modal").hidden=false;const f=$("sheet").querySelector("input,button");if(f)f.focus()}
-function closeModal(){$("modal").hidden=true;$("sheet").innerHTML=""}
+function closeModal(){$("modal").hidden=true;$("sheet").innerHTML="";$("sheet").classList.remove("wide")}
 function scanFlow(){const p=cur(),amb=S.role==="ambulance";
   openModal(`<h3>${amb?"Emergency fingerprint search":"Fingerprint check"}</h3><p class="small mute" style="margin:0">Simulated scan · registered reader · ${amb?"one-to-many search":"one-to-one check"}</p><div class="scan" id="scanC">${ic("fingerprint")}</div><p id="scanMsg" style="text-align:center;margin:0">Reading the finger…</p><div id="scanMore"></div>`);
   setTimeout(()=>{const c=$("scanC");if(!c)return;
@@ -758,6 +776,33 @@ function pinModal(title,text,onOk){openModal(`<h3>${esc(title)}</h3><p class="sm
   $("pmOk").onclick=()=>{if(!/^\d{4}$/.test($("pmPin").value))return $("pmErr").textContent="Enter 4 digits.";closeModal();onOk()};
   $("pmPin").addEventListener("input",()=>$("pmErr").textContent="")}
 
+/* ---------- start here: three guided demos + how it would work ---------- */
+const DEMOS={
+ loop:{pid:1,role:"clinic",view:"case",t:"A missed visit gets caught",s:"Daniel · Family Health Clinic",
+  hint:"Daniel missed his visit, so his case escalated instead of disappearing. Tap <b>Simulated scan</b>. His prints are worn, so choose <b>National ID card and PIN</b> (PIN 2580). Then see the overdue step, the nurse's note and the rebooked 7:30 am slot."},
+ privacy:{pid:4,role:"pharmacy",view:"profile",t:"Privacy that keeps care safe",s:"Hannah · City Pharmacy",
+  hint:"Tap <b>Simulated scan</b>. City Pharmacy sees Hannah's medicines and the iron timing warning, but not why she takes them. Her HIV care is shared with her clinic only. Then choose <b>Viewing as: Patient</b> and open <b>Access</b> to see who sees what."},
+ emergency:{pid:2,role:"ambulance",view:"profile",t:"An emergency with no ID",s:"Mary · City Ambulance",
+  hint:"Mary collapsed with no ID. Tap <b>Simulated scan</b> for an emergency fingerprint search. She allowed full access in emergencies, so the crew sees her blood thinner and mechanical valve. It's flagged, logged and her daughter is told."}};
+function renderStart(){const d=S.demo&&DEMOS[S.demo];
+  $("start").innerHTML=`<div class="sh"><h2>Start here</h2><span class="small mute">Three one-minute demos. Everything is made up and simulated.</span></div>
+  <div class="demos">${Object.entries(DEMOS).map(([k,x])=>`<button class="demo${S.demo===k?" on":""}" data-demo="${k}"><b>${esc(x.t)}</b><span>${esc(x.s)}</span></button>`).join("")}<button class="demo how" data-act="how"><b>How it would work</b><span>Architecture, deployment, pilot</span></button></div>
+  ${d?`<div class="hint" role="status">${d.hint}</div>`:`<div class="hint">You're on the clinic's worklist: every open case, most urgent first. A case can't close without evidence or a named clinician's decision.</div>`}`}
+function howModal(){$("sheet").classList.add("wide");
+  const box=(t,s)=>`<div class="fb"><b>${t}</b>${s}</div>`;
+  openModal(`<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><div><h3>How it would work</h3><p class="small mute" style="margin:0">Planned design. Today's prototype is one browser page with simulated data and no backend.</p></div><button class="arrow" data-act="close" aria-label="Close">${ic("close")}</button></div>
+  <div class="howh">Architecture (planned)</div>
+  <div class="flow">${box("1 · Screening point","Pharmacy, outreach camp or antenatal clinic records a result")}${box("2 · Identity","NIN lookup, or a registered fingerprint reader. Returns a patient ID only; templates are stored apart from medical data")}${box("3 · Case engine","Programme rule opens a case; 8 steps with owners, due dates, evidence and escalation")}${box("4 · Messages","SMS, USSD and voice in the patient's language, at the times they choose")}</div>
+  <div class="flow">${box("Consent and audit service","Per-section sharing, sensitive sections opt-in, every view logged")}${box("Record index","Files stay at the facility that made them; CareLoop keeps an index")}${box("Dashboard","Aggregate times to care and drop-off reasons; small groups hidden")}${box("Record assistant","Answers from the permitted record only, with sources; no diagnosis")}</div>
+  <p class="small mute" style="margin:2px 0 0">Records would be exchanged in the HL7 FHIR standard so existing clinic systems can connect.</p>
+  <div class="howh">Deployment</div>
+  <ul class="howl"><li>Identity: National Identification Number (NIN) first; facility fingerprint readers where NIN can't be checked; one-time code, ID card plus PIN or flagged staff entry as fallbacks.</li><li>Patients without smartphones: SMS, USSD and voice calls in English, Yoruba, Hausa, Igbo and Pidgin.</li><li>Clinics with poor internet keep working offline and sync later.</li><li>Facilities join after a licence check. A new screening programme needs only its rule and step owners.</li></ul>
+  <div class="howh">Safety and data governance</div>
+  <ul class="howl"><li>Patients choose who sees which sections; sensitive sections are hidden unless they share them.</li><li>Every view, file, request and emergency access is logged and readable by the patient; emergency access is flagged.</li><li>Flags, escalation and closure are rule-based and human. The assistant never diagnoses, never sees sensitive sections, and answers only from what the viewer may see.</li><li>Would need review against the Nigeria Data Protection Act 2023 and a security audit before any real data.</li></ul>
+  <div class="howh">Path to a pilot</div>
+  <ul class="howl"><li>One pharmacy and one clinic in Lagos, 3 months, hypertension first.</li><li>Measure time to notification, confirmation and care, the share of cases closed with evidence, and drop-off reasons, against paper referral slips.</li><li>Who could pay (a proposal, not tested): state primary health care boards or funded screening programmes, per facility. Free for patients and pharmacies.</li><li>What must hold: low SMS cost per case, NIN or affordable readers for identity, and staff who update cases.</li></ul>
+  <p class="small mute" style="margin:12px 0 0">Not secure and not clinically validated. Built by one student for the Future Health Digital Innovation Challenge 2026.</p>`)}
+
 /* ---------- render + events ---------- */
 function renderMain(){const v=S.view;let h="";
   if(v==="profile")h=needsGate()?gateHTML():profileHTML();else if(v==="case")h=needsGate()?gateHTML():caseHTML();else if(v==="access")h=accessHTML();else if(v==="audit")h=auditHTML();else if(v==="dashboard")h=dashHTML();else if(v==="trail")h=trailHTML();else if(v==="worklist")h=worklistHTML();
@@ -766,9 +811,10 @@ function renderMain(){const v=S.view;let h="";
   if(keep&&$(keep)){$(keep).value=val;if(keep!=="aiIn"||!S.ai[S.role+":"+cur().id].busy)$(keep).focus()}}
 function render(){
   if(S.role==="patient"&&!S.seen[cur().id]){S.seen[cur().id]=1;log(cur(),"You viewed your record")}
-  renderTop();renderMain()}
+  renderStart();renderTop();renderMain()}
 
 document.addEventListener("click",ev=>{const t=ev.target.closest("button,[data-act]");if(!t)return;const d=t.dataset,p=cur();
+  if(d.demo){const x=DEMOS[d.demo];S.demo=d.demo;S.pid=x.pid;S.role=x.role;S.view=x.view;S.aiOpen=false;return render()}
   if(d.pid!=null){S.pid=+d.pid;return render()}
   if(d.wl!=null){S.pid=+d.wl;S.view="case";window.scrollTo({top:0});return render()}
   if(d.role){S.role=d.role;S.view={admin:"dashboard",regulator:"trail"}[d.role]||"profile";return render()}
@@ -787,6 +833,7 @@ document.addEventListener("click",ev=>{const t=ev.target.closest("button,[data-a
   switch(d.act){
    case "scan":return scanFlow();
    case "close":return closeModal();
+   case "how":return howModal();
    case "aitoggle":S.aiOpen=!S.aiOpen;return renderMain();
    case "aiclear":S.ai[S.role+":"+p.id]={msgs:[],busy:false,err:""};return renderMain();
    case "upload":return $("fileIn").click();
