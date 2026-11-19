@@ -11,7 +11,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,400,0,0&icon_names=auto_awesome,check_circle,checklist,chevron_left,chevron_right,close,dashboard,description,do_not_disturb_on,emergency,fingerprint,history,image,key,lock,person,route,send,shield,upload,warning&display=block">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,400,0,0&icon_names=auto_awesome,check_circle,checklist,chevron_left,chevron_right,close,dashboard,description,do_not_disturb_on,emergency,fingerprint,history,image,info,key,lock,person,route,send,shield,upload,warning&display=block">
 <style>
 /* Layout: cream frame, warm white rounded cards; profile = left column (identity, assistant, emergency, audit) + right column (case, plan, timeline, details)
    Palette: cream + near-black + pastel yellow / pink / olive / periwinkle; orange marks the selected timeline bar; red kept for safety alerts */
@@ -306,7 +306,33 @@ const P=[
   notes:[["4 Apr 2024","Dr F. Okoro","Closed by clinician's decision. Care continues with oncology and, later, the palliative team."]]},
  grants:[{p:"Central General Hospital",level:"full",secs:[],on:true,since:"Feb 2024",why:"Cancer care"},{p:"Family Health Clinic",level:"sections",secs:["allergies","conditions","medications","readings"],on:true,since:"Feb 2024",why:"Chosen by Grace"},{p:"City Pharmacy",level:"sections",secs:["allergies","medications"],on:true,since:"Aug 2026",why:"Pharmacy default"}],
  requests:[],emergencyFull:false,
- audit:[A("10 Nov 2026","Family Health Clinic · Nurse A. Bello","Viewed medicines (Grace's grant)"),A("2 Sep 2026","CareLoop","DNR added to Grace's emergency card; Grace and Tunde notified"),A("2 Sep 2026","Central General Hospital · Dr F. Okoro","Recorded DNR decision with Grace; signed form held at Central General"),A("Aug 2026","City Pharmacy · Pharm. J. Osei","Viewed medicines (pharmacy default)"),A("4 Apr 2024","Central General Hospital · Dr F. Okoro","Closed cervical screening case: clinician's decision")]}];
+ audit:[A("10 Nov 2026","Family Health Clinic · Nurse A. Bello","Viewed medicines (Grace's grant)"),A("2 Sep 2026","CareLoop","DNR added to Grace's emergency card; Grace and Tunde notified"),A("2 Sep 2026","Central General Hospital · Dr F. Okoro","Recorded DNR decision with Grace; signed form held at Central General"),A("Aug 2026","City Pharmacy · Pharm. J. Osei","Viewed medicines (pharmacy default)"),A("4 Apr 2024","Central General Hospital · Dr F. Okoro","Closed cervical screening case: clinician's decision")]},
+
+{id:"hannah",name:"Hannah Thomas",first:"Hannah",sex:"F",age:26,clid:"CL-000127",lang:"English",fp:"good",contact:"Samuel Thomas (husband)",
+ sum:[["Date of birth","6 Feb 2000"],["Blood group","O+"],["Genotype","AA"],["Pregnancy","14 weeks · due 15 May 2027"],["Weight, height","63 kg, 162 cm (BMI 24.0)"],["Kidney (eGFR)","118 · Oct 2026"],["Communication","No needs recorded"],["National ID","Verified"],["Fingerprint","Enrolled"],["Language","English"],["Emergency contact","Samuel Thomas (husband)"],["Decides if unable","Samuel Thomas (husband)"]],
+ em:{allergies:[["No known allergies",""]],conditions:["Pregnant, 14 weeks (due 15 May 2027)","Mild anaemia"],meds:["TLD, one tablet daily","Iron and folic acid daily"],implants:["No implants"],other:["Blood O+","Genotype AA","Full resuscitation","Organ donor: not recorded"]},
+ secs:{conditions:["Pregnant, 14 weeks (first pregnancy, due 15 May 2027)","Mild anaemia (Hb 10.6, Oct 2026)"],medications:["TLD (tenofovir, lamivudine, dolutegravir), one tablet daily (since 2 Nov 2026)","Iron and folic acid, one tablet daily (antenatal, since 30 Oct 2026)","Timing: take TLD 2 hours before or 6 hours after iron or calcium tablets, or take them together with a meal"],immun:["Tetanus-diphtheria, dose 1 (30 Oct 2026, antenatal)"],implants:["None"],admissions:["None"],pregnancy:["First pregnancy","Booked 30 Oct 2026 at 12 weeks · Family Health Clinic","Due 15 May 2027"],family:["Not recorded"],social:["Tailor, runs a small shop in Lagos","Non-smoker, no alcohol"]},
+ plan:[["Contact","SMS only, neutral wording (\"Clinic appointment reminder\"); paper letters off"],["Barriers","Hasn't told her husband yet; worried about letters or calls at home; prefers evening visits"],["Care team","Nurse A. Bello · Dr M. Okafor (Family Health Clinic) · City Pharmacy"],["Upcoming","Antenatal visit 27 Nov 2026, 5:30 pm"]],
+ sensitive:[["HIV status","Positive · confirmed 30 Oct 2026","Family Health Clinic"],["HIV care","TLD since 2 Nov 2026 · viral load due 17 Apr 2027","Family Health Clinic"]],
+ accessNote:"Medicine names can reveal a diagnosis. Hiding the diagnosis doesn't hide the medicines: anyone you share Medications with sees TLD. If you remove City Pharmacy's access, it also loses the timing warning for iron and calcium tablets.",
+ events:[
+  {id:"h1",cat:"preg",title:"Antenatal booking visit",date:"30 Oct 2026",place:"Family Health Clinic",by:"Nurse A. Bello",trust:1,rows:[["Gestation","12 weeks"],["BP","112/70"],["Hb","10.6 g/dL (mild anaemia)"],["Started","Iron and folic acid daily"],["Routine tests","Taken at booking"]],rel:["h4"]},
+  {id:"h2",cat:"read",sens:true,title:"HIV test reactive",date:"30 Oct 2026",place:"Family Health Clinic",by:"Nurse A. Bello",trust:1,rows:[["Test","Rapid HIV test at antenatal booking: reactive"],["Rule","A reactive test prompts a confirmatory test and linkage to care, not a diagnosis"],["Case","Opened 30 Oct 2026 10:40"],["Next","Confirmatory test the same day"]],caseLink:true,rel:["h3"]},
+  {id:"h3",cat:"read",sens:true,title:"Confirmatory HIV test positive",date:"30 Oct 2026",place:"Family Health Clinic",by:"Nurse A. Bello",trust:1,rows:[["Result","Positive on confirmatory testing"],["Counselling","Done in private; partner testing offered, Hannah to decide"],["Sharing","Hannah shared this section with Family Health Clinic only"]],files:[{n:"Test and counselling record",t:"doc",d:"Family Health Clinic\nHIV testing · 30 Oct 2026\n\nRapid test 1: reactive (10:30)\nConfirmatory testing: positive (11:30)\nPost-test counselling: done, in private\nPartner testing: offered; Hannah will decide\nBy: Nurse A. Bello\n\nSynthetic record for a prototype."}],rel:["h2","h4"]},
+  {id:"h4",cat:"med",title:"TLD started",date:"2 Nov 2026",place:"Family Health Clinic",by:"Dr M. Okafor",trust:1,rows:[["Medicine","TLD (tenofovir, lamivudine, dolutegravir)"],["Dose","One tablet daily"],["With iron","Take TLD 2 hours before or 6 hours after iron or calcium tablets, or together with a meal"]],rel:["h1","h5"]},
+  {id:"h5",cat:"med",title:"TLD and iron dispensed",date:"2 Nov 2026",place:"City Pharmacy",by:"Pharm. J. Osei",trust:1,rows:[["Supply","30 days of each"],["Advice given","Timing of TLD and iron tablets"]],rel:["h4"]}],
+ caseData:{title:"HIV care case",prog:"antenatal HIV testing",rule:"A reactive HIV test at antenatal care prompts a confirmatory test and linkage to care, not a diagnosis.",sens:true,neutral:true,next:"your next visit is on 27 Nov at 5:30 pm",
+  stepNames:["Flagged","Patient notified","Patient acknowledged","Referral accepted","Confirmatory test","Seen by clinician","Treatment started","Closed (viral load recorded)"],
+  opened:"30 Oct 2026 10:40",openedD:new Date(2026,9,30),status:"open",
+  steps:[st("Family Health Clinic (rule)","30 Oct 2026","30 Oct 2026 10:40","Reactive rapid test at antenatal booking"),st("Nurse A. Bello (in person)","30 Oct 2026","30 Oct 2026 10:50","Told in private, with counselling"),st("Hannah Thomas","31 Oct 2026","30 Oct 2026 10:50","Agreed to the confirmatory test and care"),st("Family Health Clinic · HIV care","31 Oct 2026","30 Oct 2026 11:00","Accepted; care in the same clinic as her antenatal visits"),st("Nurse A. Bello","6 Nov 2026","30 Oct 2026 11:30","Confirmatory test positive · test record"),st("Dr M. Okafor","6 Nov 2026","2 Nov 2026 17:30","Evening clinic, as she prefers"),st("Dr M. Okafor","6 Nov 2026","2 Nov 2026 17:45","TLD started; iron timing explained"),st("Nurse A. Bello","17 Apr 2027",null,"")],
+  metrics:{notify:"10 min · told in person",confirm:"Same day",care:"3 days"},
+  log:[["30 Oct 2026 10:40","Case opened by rule: reactive HIV test at antenatal booking"],["30 Oct 2026 10:50","Told in private with counselling; Hannah agreed to the next steps"],["30 Oct 2026 11:05","Hannah shared her HIV section with Family Health Clinic only; paper letters turned off"],["30 Oct 2026 11:30","Confirmatory test positive"],["2 Nov 2026 17:45","Seen at the evening clinic; TLD started"],["2 Nov 2026 18:20","City Pharmacy dispensed TLD and iron; timing explained"]],
+  msgs:[["30 Oct 2026 10:50","In person (Family Health Clinic)","Results explained in private, with counselling. Hannah chose SMS with neutral wording and no letters."],["31 Oct 2026 17:00","SMS to Hannah","CareLoop: Clinic appointment reminder. Family Health Clinic, Mon 2 Nov, 5:30 pm. Reply 1 to confirm."],["31 Oct 2026 17:12","Reply from Hannah","1"]],
+  notes:[["30 Oct 2026","Nurse A. Bello","Hasn't told her husband yet and is worried about letters at home. Letters off; SMS with neutral wording only. Evening visits. Partner testing offered; her decision."],["2 Nov 2026","Dr M. Okafor","TLD started. Viral load at 36 weeks (17 Apr 2027). Baby's own test after birth opens as a separate case."]]},
+ grants:[{p:"Family Health Clinic",level:"full",secs:[],on:true,since:"30 Oct 2026",why:"Antenatal care"},{p:"City Pharmacy",level:"sections",secs:["allergies","medications"],on:true,since:"2 Nov 2026",why:"Pharmacy default"}],
+ requests:[],emergencyFull:false,
+ audit:[A("2 Nov 2026 18:20","City Pharmacy · Pharm. J. Osei","Viewed medicines (pharmacy default); dispensing added"),A("2 Nov 2026 17:30","Family Health Clinic · Dr M. Okafor","Opened a sensitive section (Hannah's share)"),A("30 Oct 2026 11:05","Hannah Thomas","Shared a sensitive section with Family Health Clinic only"),A("30 Oct 2026 11:05","Hannah Thomas","Turned off paper letters"),A("30 Oct 2026 10:40","CareLoop rule","Case opened by rule"),A("30 Oct 2026 10:30","Family Health Clinic · Nurse A. Bello","Fingerprint matched (one-to-one); antenatal visit added")]}];
+function SN(c,k){return (c.stepNames||STEP_NAMES)[k]}
 
 const S={pid:0,role:"patient",view:"profile",sel:{},filter:"all",verified:{},aiOpen:false,ai:{},sample:undefined,seen:{}};
 const $=id=>document.getElementById(id);
@@ -320,7 +346,9 @@ function log(p,what,flag){p.audit.unshift(A(clock(),whoLabel(p),what,flag))}
 let toastT;function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2600)}
 
 /* ---------- access rules ---------- */
-function access(p,role){
+function access(p,role){const a=access0(p,role),r=ROLES[role||S.role];if(r.provider&&!a.emOnly&&p.sensitive.some(s=>s[2]===r.provider))a.sensShared=true;return a}
+function sensOK(a){return !!(a.sens||a.sensShared)}
+function access0(p,role){
   role=role||S.role;const r=ROLES[role];
   if(role==="patient")return {full:true,secs:new Set(SECTIONS.map(s=>s[0])),sens:true,label:"Everything"};
   if(!r.provider)return {none:true};
@@ -334,9 +362,9 @@ function access(p,role){
   return {emOnly:true,label:"No consent: emergency card only"};
 }
 function canSec(a,sec){return a.full||(a.secs&&a.secs.has(sec))}
-function canEvent(a,e){if(a.emOnly||a.none)return false;if(canSec(a,CATSEC[e.cat]))return true;if(a.own&&e.place===a.own&&e.cat==="read")return true;return false}
+function canEvent(a,e){if(a.emOnly||a.none)return false;if(e.sens&&!sensOK(a))return false;if(canSec(a,CATSEC[e.cat]))return true;if(a.own&&e.place===a.own&&e.cat==="read")return true;return false}
 function canFiles(a,e){return canEvent(a,e)&&(a.full||(a.secs&&a.secs.has("files"))||(a.own&&e.place===a.own))}
-function canCase(a,p){return S.role==="patient"||S.role==="clinic"&&canSec(a,"readings")}
+function canCase(a,p){return S.role==="patient"||S.role==="clinic"&&canSec(a,"readings")&&(!p.caseData.sens||sensOK(a))}
 const secOfList={conditions:"conditions",medications:"medications",immun:"medications",implants:"surgeries",admissions:"conditions",pregnancy:"pregnancy",family:"conditions",social:"conditions"};
 const listNames={conditions:"Conditions",medications:"Medications",immun:"Immunisations",implants:"Implants and devices",admissions:"Hospital admissions",pregnancy:"Pregnancy history",family:"Family history",social:"Social history"};
 function needsGate(){return R().provider&&!S.verified[S.role+":"+cur().id]}
@@ -390,13 +418,13 @@ function rightCol(p,a){
   if(a.emOnly){h+=`<section class="card"><h2>${ic("lock")}Emergency card only</h2><p class="mute" style="margin:0 0 10px">${S.role==="ambulance"?`${esc(p.first)} hasn't turned on "Full access in an emergency", so only the emergency card is shown.`:`${esc(R().provider)} has no consent for ${esc(p.first)}'s record.`}</p>${S.role!=="ambulance"?reqBtn(p,"full","Request access"):""}</section>`;return h}
   if(p.emergency&&(S.role==="patient"||a.full))h+=`<div class="banner">${ic("emergency")}<div style="flex:1"><b>Emergency access on ${esc(p.emergency.when.slice(0,11))}</b><div class="small">${esc(p.emergency.by)} found ${esc(p.first)} by fingerprint. Full record opened by her setting. Reported to ${esc(p.first)} and ${esc(p.contact)}.</div></div>${S.role==="patient"?`<button class="btn" data-view="audit">Review</button>`:""}</div>`;
   const c=p.caseData;
-  if(c.status!=="closed"&&(canSec(a,"readings")||a.own)){const i=c.steps.findIndex(s=>!s.done),s=c.steps[i];
-    h+=`<div class="banner">${ic("warning")}<div style="flex:1"><b>${c.status==="escalated"?"Escalated case":"Open case"}: ${esc(p.events.find(e=>e.caseLink).title.replace(" flagged",""))}</b><div class="small">Step ${i+1} of 8: ${STEP_NAMES[i]} · Owner ${esc(s.owner)} · Due ${esc(s.due)}</div></div>${canCase(a,p)?`<button class="btn" data-view="case">Open case</button>`:""}</div>`}
+  if(c.status!=="closed"&&(canSec(a,"readings")||a.own)&&(!c.sens||sensOK(a))){const i=c.steps.findIndex(s=>!s.done),s=c.steps[i];
+    h+=`<div class="banner">${ic("warning")}<div style="flex:1"><b>${c.status==="escalated"?"Escalated case":"Open case"}: ${esc(p.events.find(e=>e.caseLink).title.replace(" flagged",""))}</b><div class="small">Step ${i+1} of 8: ${SN(c,i)} · Owner ${esc(s.owner)} · Due ${esc(s.due)}</div></div>${canCase(a,p)?`<button class="btn" data-view="case">Open case</button>`:""}</div>`}
   h+=a.full?`<section class="card"><h2>${ic("route")}Care plan</h2>${p.plan.map(r=>`<div class="kv"><span>${esc(r[0])}</span><span>${esc(r[1])}</span></div>`).join("")}</section>`:`<section class="card"><h2>${ic("lock")}Care plan</h2><div class="locked"><span class="mute small" style="flex:1">Contact preferences, barriers and care team need full access.</span>${reqBtn(p,"full","Request access")}</div></section>`;
   h+=timelineCard(p,a)+detailCard(p,a)+sectionsCard(p,a)+sensitiveCard(p);
   return h}
 
-function evList(p){const g=FGROUP[S.filter];return g?p.events.filter(e=>g.includes(e.cat)):p.events}
+function evList(p){const g=FGROUP[S.filter],ok=sensOK(access(p)),L=p.events.filter(e=>!e.sens||ok);return g?L.filter(e=>g.includes(e.cat)):L}
 function selEvent(p){const L=evList(p);let id=S.sel[p.id];if(!L.some(e=>e.id===id))id=L.length?L[L.length-1].id:null;S.sel[p.id]=id;return L.find(e=>e.id===id)}
 function timelineCard(p,a){const L=evList(p),e=selEvent(p),n=L.length;
   /* bar heights are visual rhythm only (stable per entry); locked entries stay short */
@@ -419,8 +447,10 @@ function detailCard(p,a){const e=selEvent(p);if(!e)return "";
   ${e.caseLink&&canCase(a,p)?`<button class="btn" style="margin-top:10px" data-view="case">${ic("route")} Open the case</button>`:""}
   ${rel.length?`<div class="grp">Related</div><div class="tags">${rel.map(x=>`<button class="tag" data-ev="${x.id}">${esc(x.title)} · ${esc(x.date)}</button>`).join("")}</div>`:""}</section>`}
 function sectionsCard(p,a){return `<section class="card"><h2>${ic("description")}Record sections</h2>${Object.keys(listNames).map(k=>{const ok=canSec(a,secOfList[k]);return `<details${ok?"":" class=\"lk\""}><summary><span>${listNames[k]}</span><span class="mute small">${ok?p.secs[k].length+" item"+(p.secs[k].length>1?"s":""):ic("lock")+" Locked"}</span></summary>${ok?`<ul>${p.secs[k].map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<div class="locked" style="margin-top:6px"><span class="small" style="flex:1">Part of ${esc(SECNAME[secOfList[k]])}.</span>${reqBtn(p,secOfList[k],"Request access")}</div>`}</details>`}).join("")}</section>`}
-function sensitiveCard(p){if(S.role!=="patient")return `<section class="card"><h2>${ic("lock")}Sensitive sections</h2><p class="small mute" style="margin:0">Mental health, HIV, hepatitis B and TB status, and sexual health are hidden by default. Only the patient can share them.</p></section>`;
-  return `<section class="card"><h2>${ic("lock")}Sensitive sections<span class="sub">Hidden from everyone but you</span></h2><p class="small mute" style="margin:0 0 6px">Mental health · HIV, hepatitis B, TB · Sexual health. Never on the emergency card or sent to the assistant.</p>${p.sensitive.length?p.sensitive.map(s=>`<div class="kv"><span>${esc(s[0])}</span><span>${esc(s[1])}</span></div>`).join(""):`<p class="small" style="margin:0">None recorded.</p>`}</section>`}
+function sensitiveCard(p){if(S.role!=="patient"){const mine=p.sensitive.filter(s=>s[2]&&s[2]===R().provider);
+    if(mine.length)return `<section class="card"><h2>${ic("lock")}Sensitive sections<span class="sub">Shared with you by ${esc(p.first)}</span></h2><p class="small mute" style="margin:0 0 6px">Shared only with ${esc(R().provider)}. Not on the emergency card, not sent to the assistant, and not visible to other providers.</p>${mine.map(s=>`<div class="kv"><span>${esc(s[0])}</span><span>${esc(s[1])}</span></div>`).join("")}</section>`;
+    return `<section class="card"><h2>${ic("lock")}Sensitive sections</h2><p class="small mute" style="margin:0">Mental health, HIV, hepatitis B and TB status, and sexual health are hidden by default. Only the patient can share them.</p></section>`}
+  return `<section class="card"><h2>${ic("lock")}Sensitive sections<span class="sub">Hidden unless you share them</span></h2><p class="small mute" style="margin:0 0 6px">Mental health · HIV, hepatitis B, TB · Sexual health. Only you can share them. Never on the emergency card or sent to the assistant.</p>${p.sensitive.length?p.sensitive.map(s=>`<div class="kv"><span>${esc(s[0])}</span><span>${esc(s[2]?s[1]+" · shared with "+s[2]+" only":s[1])}</span></div>`).join(""):`<p class="small" style="margin:0">None recorded.</p>`}${p.accessNote?`<p class="small" style="margin:8px 0 0">${ic("info")} ${esc(p.accessNote)}</p>`:""}</section>`}
 function reqBtn(p,sec,label){if(S.role==="patient"||S.role==="ambulance")return "";const r=p.requests.find(r=>r.p===R().provider&&r.sec===sec&&r.status==="pending");return r?`<span class="tag">Requested ${esc(r.when.slice(12))}</span>`:`<button class="btn ghost" data-req="${sec}">${ic("key")} ${label}</button>`}
 
 /* ---------- assistant ---------- */
@@ -442,8 +472,9 @@ function aiContext(p,a){const L=[];
   if(!a.emOnly){L.push("Summary: "+p.sum.map(r=>r[0]+" "+r[1]).join("; ")+".");
     Object.keys(listNames).forEach(k=>{if(canSec(a,secOfList[k]))L.push(listNames[k]+": "+p.secs[k].join("; ")+".")});
     if(a.full)L.push("Care plan: "+p.plan.map(r=>r[0]+": "+r[1]).join("; ")+".");
-    p.events.forEach(e=>{if(canEvent(a,e))L.push(`[${e.id}] ${e.date} · ${e.title} · ${e.place} · ${e.trust?"provider-verified":"patient-reported"} · `+e.rows.map(r=>r[0]+": "+r[1]).join("; "))});
-    if(canSec(a,"readings")||a.own){const c=p.caseData,i=c.steps.findIndex(s=>!s.done);L.push(`Case (${c.title}): status ${c.status}; opened ${c.opened}; `+(i<0?"all steps done":`current step ${STEP_NAMES[i]}, owner ${c.steps[i].owner}, due ${c.steps[i].due}`)+"; log: "+c.log.map(x=>x[0]+" "+x[1]).join(" | "))}}
+    p.events.forEach(e=>{if(canEvent(a,e)&&!e.sens)L.push(`[${e.id}] ${e.date} · ${e.title} · ${e.place} · ${e.trust?"provider-verified":"patient-reported"} · `+e.rows.map(r=>r[0]+": "+r[1]).join("; "))});
+    if(p.sensitive.length)L.push("Sensitive sections exist but are never sent to the assistant. If asked why a medicine was prescribed and the reason isn't in this RECORD, say the reason isn't shared with the assistant. Never infer a condition from a medicine.");
+    if((canSec(a,"readings")||a.own)&&!p.caseData.sens){const c=p.caseData,i=c.steps.findIndex(s=>!s.done);L.push(`Case (${c.title}): status ${c.status}; opened ${c.opened}; `+(i<0?"all steps done":`current step ${SN(c,i)}, owner ${c.steps[i].owner}, due ${c.steps[i].due}`)+"; log: "+c.log.map(x=>x[0]+" "+x[1]).join(" | "))}}
   const locked=SECTIONS.filter(s=>!canSec(a,s[0])).map(s=>s[1]);
   if(locked.length)L.push("Locked to this viewer (not provided, never guess): "+locked.join(", ")+".");
   return L.join("\n")}
@@ -458,15 +489,15 @@ function localAnswer(q,p,a){
     return `That's an important question, and it deserves a real conversation, not a record search. ${team||"Your care team"} can talk it through with you. I can only tell you what the record says.`}
   if(GUARD.test(q)&&!RESUS_Q.test(q))return GUARD_REPLY;
   const pt=S.role==="patient",poss=pt?"Your":p.first+"'s",lq=q.toLowerCase(),vis=!a.emOnly&&!a.none,has=re=>re.test(lq);
-  const evs=p.events.filter(e=>canEvent(a,e));
+  const evs=p.events.filter(e=>canEvent(a,e)&&!e.sens);
   const cite=f=>{const ids=evs.filter(f).map(e=>e.id);return ids.length?" ["+ids.join(", ")+"]":""};
-  const caseOK=pt||(vis&&canSec(a,"readings"));
+  const caseOK=(pt||(vis&&canSec(a,"readings")))&&!p.caseData.sens;
   const allergies=()=>poss+" allergies: "+p.em.allergies.map(x=>x[0]).join("; ")+"."+cite(e=>e.cat==="allergy");
   const meds=()=>poss+" medicines: "+(vis&&canSec(a,"medications")?p.secs.medications:p.em.meds).join("; ")+"."+cite(e=>e.cat==="med");
   const conds=()=>poss+" conditions: "+(vis&&canSec(a,"conditions")?p.secs.conditions:p.em.conditions).join("; ")+"."+cite(e=>e.cat==="cond");
   const implants=()=>"Implants: "+p.em.implants.join("; ")+"."+cite(e=>e.cat==="surg"&&/valve|plate|implant|mesh|stent/i.test(e.title+JSON.stringify(e.rows)));
   const resus=()=>p.em.dnr?`Resuscitation: ${p.em.dnr.text}. ${p.em.dnr.care} ${p.em.dnr.by}.`+cite(e=>/DNR/.test(e.title)):"Resuscitation: no DNR is recorded. The emergency card says full resuscitation.";
-  const caseLine=()=>{const c=p.caseData,i=c.steps.findIndex(s=>!s.done);return `${c.title}: ${c.status}, opened ${c.opened}. `+(i<0?"All 8 steps are done.":`Now at step ${i+1} of 8 (${STEP_NAMES[i]}), owner ${c.steps[i].owner}, due ${c.steps[i].due}.`)+cite(e=>e.caseLink)};
+  const caseLine=()=>{const c=p.caseData,i=c.steps.findIndex(s=>!s.done);return `${c.title}: ${c.status}, opened ${c.opened}. `+(i<0?"All 8 steps are done.":`Now at step ${i+1} of 8 (${SN(c,i)}), owner ${c.steps[i].owner}, due ${c.steps[i].due}.`)+cite(e=>e.caseLink)};
   const out=[];
   const list=(k,label)=>vis&&canSec(a,secOfList[k])?label+": "+p.secs[k].join("; ")+".":null;
   if(has(/summar|overview|matters most|3 lines|three lines|key facts/)){
@@ -475,8 +506,9 @@ function localAnswer(q,p,a){
     if(caseOK)out.push(caseLine())}
   else{
     if(has(/\bdnr\b|dnacpr|resus|\bcpr\b|advance decision|end of life|palliative|code status/)){out.push(resus());if(RESUS_Q.test(q)&&!pt)out.push("This is the decision on the record. The crew and clinicians decide what to do.")}
+    if(has(/\bwhy\b|what (is|'s) (it|this|that|tld) for|reason for/)&&has(/medic|drug|tablet|pill|tld|taking|\bon (it|this|that)\b/)){if(p.sensitive.length)out.push(pt?"The reason is in your sensitive sections, which are never sent to the assistant.":"That isn't shared with you. The record you can see doesn't say why.")}
     if(has(/allerg|penicillin|amoxicillin|reaction|contrast|dye|antibiotic/))out.push(allergies());
-    if(has(/medic|drug|tablet|pill|warfarin|metformin|amlodipine|thinner|anticoag|bleed|taking|on any/))out.push(meds());
+    if(has(/medic|drug|tablet|pill|warfarin|metformin|amlodipine|tld|iron|thinner|anticoag|bleed|taking|on any/))out.push(meds());
     if(has(/implant|valve|plate|device|metal|mri|pacemaker/))out.push(implants());
     if(has(/condition|illness|problem|diabet|history of|diagnos/))out.push(conds());
     if(has(/blood (group|type)|genotype|sickle|transfus/)){const src=vis?p.sum.filter(r=>/Blood group|Genotype|Sickle/.test(r[0])).map(r=>r[0]+" "+r[1]):p.em.other.filter(x=>/Blood|Genotype|Sickle/.test(x));out.push(src.join("; ")+".")}
@@ -534,11 +566,11 @@ function caseHTML(){const p=cur(),a=access(p),c=p.caseData;
   if(!canCase(a,p))return `<div class="card">You can't open this case.</div>`;
   const i=c.steps.findIndex(s=>!s.done);const clin=S.role==="clinic";
   const pill=c.status==="closed"?`<span class="tag ok">Closed</span>`:c.status==="escalated"?`<span class="tag sev">Escalated</span>`:c.status==="unassigned"?`<span class="tag sev">Unassigned</span>`:`<span class="tag mod">Open</span>`;
-  const steps=c.steps.map((s,k)=>{const cls=s.done?"done":k===i?(s.rej?"rej":s.over?"over":"open"):"";return `<div class="step ${cls}${k===i?" cur":""}"><div class="sc">${s.done?ic("check_circle").replace('class="ms"','class="ms" style="font-size:18px;vertical-align:0"'):k+1}</div><div><b>${STEP_NAMES[k]}</b>${k===i&&s.over?` <span class="tag sev">Overdue</span>`:""}${k===i&&s.rej?` <span class="tag sev">Rejected</span>`:""}
+  const steps=c.steps.map((s,k)=>{const cls=s.done?"done":k===i?(s.rej?"rej":s.over?"over":"open"):"";return `<div class="step ${cls}${k===i?" cur":""}"><div class="sc">${s.done?ic("check_circle").replace('class="ms"','class="ms" style="font-size:18px;vertical-align:0"'):k+1}</div><div><b>${SN(c,k)}</b>${k===i&&s.over?` <span class="tag sev">Overdue</span>`:""}${k===i&&s.rej?` <span class="tag sev">Rejected</span>`:""}
     <div class="small mute">Owner ${esc(s.owner)} · Due ${esc(s.due)}</div>${s.done?`<div class="small">Done ${esc(s.done)} · ${esc(s.ev)}</div>`:""}${s.rej?`<div class="small">Rejected: ${esc(s.rej)}</div>`:""}</div></div>`}).join("");
   let actions="";
   if(clin&&i>=0){const s=c.steps[i],last=i===7;
-    actions=`<section class="card"><h2>${ic("check_circle")}Update this case</h2><p class="small mute" style="margin:0 0 8px">Current step: <b>${STEP_NAMES[i]}</b>. Each step needs evidence. ${last?"Closing needs evidence or a named clinician's decision.":""}</p>
+    actions=`<section class="card"><h2>${ic("check_circle")}Update this case</h2><p class="small mute" style="margin:0 0 8px">Current step: <b>${SN(c,i)}</b>. Each step needs evidence. ${last?"Closing needs evidence or a named clinician's decision.":""}</p>
     ${s.rej?`<label class="small" for="reassign">Reassign the referral</label><select id="reassign"><option value="">Choose a clinic or hospital</option>${PROVIDERS.filter(x=>x.ok&&/Clinic|Hospital/.test(x.kind)&&x.n!=="Family Health Clinic").map(x=>`<option>${esc(x.n)}</option>`).join("")}</select><div class="err" id="caseErr"></div><button class="btn" style="margin-top:8px" data-act="reassign">Reassign</button>`:
     `${last?`<label class="small" for="closeBasis">Closure basis</label><select id="closeBasis"><option value="">Choose one</option><option value="evidence">Evidence attached</option><option value="clinician">Named clinician's decision</option></select><label class="small" for="closeName" style="display:block;margin-top:6px">Clinician's name (for a clinician's decision)</label><input type="text" id="closeName" placeholder="Dr N. Haddad">`:""}
     <label class="small" for="caseEv" style="display:block;margin-top:6px">Evidence or reason</label><textarea id="caseEv" placeholder="${i===3?"Accepted; appointment Sat 21 Nov, 9:00":i===4?"Repeat BP 148/94, seated, 2 readings":"What happened and where it's recorded"}"></textarea><div class="err" id="caseErr"></div>
@@ -561,25 +593,26 @@ function caseAct(act){const p=cur(),c=p.caseData,i=c.steps.findIndex(s=>!s.done)
     else{if(!ev)return err("Add evidence before marking this step done.");s.ev=ev}
     s.done=clock();delete s.over;if(c.status!=="closed"&&c.status!=="unassigned")c.status=c.status==="escalated"?"escalated":"open";
     if(i===4)c.metrics.confirm=daysSince(c.openedD);if(i===5)c.metrics.care=daysSince(c.openedD);
-    c.log.push([clock(),STEP_NAMES[i]+" done: "+ev]);log(p,`Case step done: ${STEP_NAMES[i]}`);
+    c.log.push([clock(),SN(c,i)+" done: "+ev]);log(p,`Case step done: ${c.sens?"step "+(i+1):SN(c,i)}`);
     if(i===3){c.msgs.push([clock(),"SMS to "+p.first,`CareLoop: Family Health Clinic accepted your referral. ${ev}`])}
-    if(i===7){const e=p.events.find(e=>e.caseLink);e.title=e.title.replace("flagged","case closed");c.msgs.push([clock(),"SMS to "+p.first,"CareLoop: Your blood pressure case is closed. Thank you."])}
-    toast(i===7?"Case closed":STEP_NAMES[i]+": done");return render()}
+    if(i===7){const e=p.events.find(e=>e.caseLink);e.title=e.title.replace("flagged","case closed");c.msgs.push([clock(),"SMS to "+p.first,c.neutral?"CareLoop: Clinic appointment reminder. Your follow-up is complete. Thank you.":"CareLoop: Your blood pressure case is closed. Thank you."])}
+    toast(i===7?"Case closed":SN(c,i)+": done");return render()}
   if(act==="reject"){if(!ev)return err("Give a reason for rejecting the referral.");s.rej=ev;s.owner="Unassigned";c.status="unassigned";c.log.push([clock(),"Referral rejected: "+ev]);log(p,"Rejected referral: "+ev,true);toast("Referral rejected; case is unassigned");return render()}
   if(act==="escalate"){if(!ev)return err("Say why you're escalating.");c.status="escalated";s.owner="Nurse A. Bello (escalation)";c.log.push([clock(),"Escalated: "+ev]);log(p,"Escalated case: "+ev,true);toast("Case escalated");return render()}}
 
 /* ---------- message drafts: AI or template drafts, a person approves ---------- */
 S.draft={};
-const DRAFT_BAD=/\b\d+\s?mg\b|\bdoses?\b|\bdiagnos|\btablets?\b|\bpills?\b|metformin|amlodipine|warfarin|labetalol|penicillin|amoxicillin|hypertension|diabet|\bcure\b/i;
+const DRAFT_BAD=/\b\d+\s?mg\b|\bdoses?\b|\bdiagnos|\btablets?\b|\bpills?\b|metformin|amlodipine|warfarin|labetalol|penicillin|amoxicillin|hypertension|diabet|\bcure\b|\bhiv\b|antiretro|viral|\btld\b|tenofovir|lamivudine|dolutegravir/i;
 function draftMeta(p,c,i){const contact=p.plan[0][1],barriers=p.plan[1][1],upcoming=p.plan[3][1],s=c.steps[i];
   const phone=/^phone/i.test(contact),when=(contact.match(/after \d{1,2}(?::\d{2})? ?[ap]m/i)||[""])[0];
-  return {contact,barriers,upcoming,step:STEP_NAMES[i],owner:s.owner,due:s.due,phone,when,channel:phone?"Call script":"SMS",clinic:R().provider||"the clinic",staff:R().staff||"the care team"}}
+  return {contact,barriers,upcoming,step:SN(c,i),owner:s.owner,due:s.due,phone,when,channel:phone?"Call script":"SMS",clinic:R().provider||"the clinic",staff:R().staff||"the care team"}}
 function draftTemplate(p,c,i){const m=draftMeta(p,c,i),hi=m.phone?`Hello ${p.first}, this is ${m.staff} from ${m.clinic}.`:`Hi ${p.first}, this is CareLoop for ${m.clinic}.`;
   const slot=(m.upcoming.match(/^[^·]*\d{1,2}:\d{2}[^·]*/)||[""])[0].trim().replace(/ 2026/,"").replace(/\b(his|her)\b/g,"your"),due=(i===3?c.steps[4].due:m.due).replace(/ 2026$/,"");
   const opts=/saturday/i.test(m.barriers)?" Saturday slots are available.":/shift|pay|work/i.test(m.barriers)?" Early-morning and evening slots are available.":"";
   const reply=m.phone?" Is that time still good for you?":" Reply to this message or call the clinic to change it.";
   let body;
-  if(i<=2)body=" Your blood pressure reading needs a second check. The clinic will contact you to book it. Reply YES if you got this.";
+  if(c.neutral)body=` Clinic appointment reminder: ${c.next}.`+reply;
+  else if(i<=2)body=" Your blood pressure reading needs a second check. The clinic will contact you to book it. Reply YES if you got this.";
   else if(i===3)body=` We have your referral and will contact you to book your second blood pressure reading by ${due}.`+opts;
   else if(i===4)body=(slot?` Your second blood pressure reading is booked: ${slot}.`:` Your second blood pressure reading is due by ${due}.${opts}`)+reply;
   else if(i<=6)body=` Please come in to see the clinician about your blood pressure results by ${due}.${opts}`+reply;
@@ -604,11 +637,11 @@ Write a ${m.phone?"short phone call script (at most 70 words) for the nurse to s
 Rules:
 - Say who it is from (${m.phone?m.staff+" from "+m.clinic:"CareLoop for "+m.clinic}) and the one next action, with the date or slot.
 - Offer options that fit the barriers below, without repeating private details back to the patient.
-- Never diagnose. Never name a medicine, a dose or a condition. Call it "your blood pressure reading".
+- Never diagnose. Never name a medicine, a dose or a condition. ${c.neutral?'Start with "Clinic appointment reminder". Never say what the visit is for, never mention pregnancy, tests or results: others may read her phone.':'Call it "your blood pressure reading".'}
 - End with how to reply or change the time. Output only the message, no quotes, no notes.
 FACTS
-Current step: ${i+1} of 8, ${m.step}. Owner: ${m.owner}. Due: ${m.due}.
-Upcoming: ${m.upcoming.split("·")[0].trim()}
+${c.neutral?`Next visit: ${c.next}.`:`Current step: ${i+1} of 8, ${m.step}. Owner: ${m.owner}. Due: ${m.due}.
+Upcoming: ${m.upcoming.split("·")[0].trim()}`}
 Contact preference: ${m.contact}
 Barriers: ${m.barriers}
 Recent messages:
@@ -632,9 +665,9 @@ function draftAct(act){const p=cur(),c=p.caseData,i=c.steps.findIndex(s=>!s.done
 function accessHTML(){const p=cur();
   const pend=p.requests.filter(r=>r.status==="pending");
   return `<div class="grid2">
-  <section class="card"><h2>${ic("emergency")}Full access in an emergency</h2><div style="display:flex;gap:12px;align-items:flex-start"><p class="small" style="margin:0;flex:1">If you can't speak for yourself, a registered ambulance or hospital can open your <b>whole record</b> after an emergency fingerprint search. When it's off they see your emergency card only. Either way it's flagged and you and ${esc(p.contact)} are told.</p><button class="switch${p.emergencyFull?" on":""}" data-act="emtoggle" role="switch" aria-checked="${p.emergencyFull}" aria-label="Full access in an emergency"></button></div><p class="small mute" style="margin:8px 0 0">Off by default for new patients. ${esc(p.first)} turned it on.</p></section>
+  <section class="card"><h2>${ic("emergency")}Full access in an emergency</h2><div style="display:flex;gap:12px;align-items:flex-start"><p class="small" style="margin:0;flex:1">If you can't speak for yourself, a registered ambulance or hospital can open your <b>whole record</b> after an emergency fingerprint search. When it's off they see your emergency card only. Either way it's flagged and you and ${esc(p.contact)} are told.</p><button class="switch${p.emergencyFull?" on":""}" data-act="emtoggle" role="switch" aria-checked="${p.emergencyFull}" aria-label="Full access in an emergency"></button></div><p class="small mute" style="margin:8px 0 0">Off by default for new patients. ${p.emergencyFull?esc(p.first)+" turned it on.":"It's off for "+esc(p.first)+"."}</p></section>
   <section class="card"><h2>${ic("key")}Requests<span class="sub">${pend.length} waiting</span></h2>${pend.length?pend.map((r,i)=>`<div class="kv fx" style="align-items:center"><span><b style="color:var(--ink);font-weight:500">${esc(r.p)}</b><br>${r.sec==="full"?"Full access":esc(SECNAME[r.sec])} · ${esc(r.when)}</span><span class="row"><button class="btn" data-approve="${p.requests.indexOf(r)}">Approve</button><button class="btn ghost" data-decline="${p.requests.indexOf(r)}">Decline</button></span></div>`).join(""):`<p class="small mute" style="margin:0">No requests. When a provider asks to see a locked section, it shows up here.</p>`}</section>
-  <section class="card"><h2>${ic("shield")}Who can see your record</h2>${p.grants.map((g,i)=>`<div class="kv fx" style="align-items:center"><span style="color:var(--ink)"><b style="font-weight:500">${esc(g.p)}</b> <span class="tag ok">Licence verified</span><br><span class="small mute">${g.level==="full"?"Full access":g.secs.map(s=>SECNAME[s]).join(", ")} · ${esc(g.why)} · since ${esc(g.since)}</span></span><span>${g.on?`<button class="btn ghost" data-revoke="${i}">Remove</button>`:`<span class="tag">Removed</span>`}</span></div>`).join("")}<p class="small mute" style="margin:8px 0 0">Access stays on until you turn it off. The provider is told when you change it.</p></section>
+  <section class="card"><h2>${ic("shield")}Who can see your record</h2>${p.grants.map((g,i)=>`<div class="kv fx" style="align-items:center"><span style="color:var(--ink)"><b style="font-weight:500">${esc(g.p)}</b> <span class="tag ok">Licence verified</span><br><span class="small mute">${g.level==="full"?"Full access":g.secs.map(s=>SECNAME[s]).join(", ")} · ${esc(g.why)} · since ${esc(g.since)}</span></span><span>${g.on?`<button class="btn ghost" data-revoke="${i}">Remove</button>`:`<span class="tag">Removed</span>`}</span></div>`).join("")}<p class="small mute" style="margin:8px 0 0">Access stays on until you turn it off. The provider is told when you change it.</p>${p.sensitive.some(s=>s[2])?`<div class="kv"><span>Sensitive sections</span><span>${esc([...new Set(p.sensitive.filter(s=>s[2]).map(s=>s[2]))].join(", "))} only</span></div>`:""}${p.accessNote?`<div role="note" style="background:var(--tint);border-radius:12px;padding:10px 12px;margin-top:10px" class="small">${ic("info")} ${esc(p.accessNote)}</div>`:""}</section>
   <section class="card"><h2>${ic("person")}Give access</h2><form id="grantForm">
    <label class="small" for="gProv">Doctor, hospital, clinic, pharmacy or ambulance</label><select id="gProv"><option value="">Choose a provider</option>${PROVIDERS.map(x=>`<option value="${esc(x.n)}"${x.ok?"":" disabled"}>${esc(x.n)} · ${esc(x.kind)}${x.ok?"":" ("+x.why+")"}</option>`).join("")}</select>
    <div class="row" style="margin:10px 0 4px"><label class="small"><input type="radio" name="gLevel" value="full" checked> Full access</label><label class="small"><input type="radio" name="gLevel" value="sections"> Chosen sections</label></div>
@@ -649,7 +682,7 @@ function worklistHTML(){const me=R().provider,rows=[];
   P.forEach((p,pi)=>{const c=p.caseData;if(c.status==="closed")return;const i=c.steps.findIndex(s=>!s.done);if(i<0)return;const s=c.steps[i];
     const late=c.status==="escalated"?36:s.over?1:0,need=c.status!=="open"||!!s.over||!!s.rej;
     const st=c.status==="escalated"?["Escalated","mod"]:c.status==="unassigned"?["Unassigned","sev"]:s.rej?["Rejected","sev"]:s.over?["Overdue","sev"]:["On track","ok"];
-    rows.push({id:p.clid,who:p.name,pi,st,step:STEP_NAMES[i],owner:s.owner,when:need&&late?`${late} days late`:"Due "+s.due.replace(/ 2026$/,""),need,late})});
+    rows.push({id:p.clid,who:p.name,pi,st,step:SN(c,i),owner:s.owner,when:need&&late?`${late} days late`:"Due "+s.due.replace(/ 2026$/,""),need,late})});
   const L={open:["On track","ok"],overdue:["Overdue","sev"],lost:["Lost to follow-up","sev"],rejected:["Rejected","sev"],unassigned:["Unassigned","sev"],escalated:["Escalated","mod"]};
   COHORT.filter(c=>c.f===me&&c.s!=="closed").forEach(c=>rows.push({id:c.id,who:"",st:L[c.s],step:STEP_NAMES[Math.min(c.prog,7)],owner:c.owner,when:c.late?`${c.late} days late${c.reason?" · "+c.reason:""}`:"On track",need:c.s!=="open",late:c.late}));
   rows.sort((a,b)=>(b.need-a.need)||(b.late-a.late));const n=rows.filter(r=>r.need).length;
