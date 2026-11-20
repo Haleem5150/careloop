@@ -186,7 +186,7 @@ td{padding:7px 8px;border-bottom:1px solid var(--line);font-variant-numeric:tabu
 
 <div class="wrap">
   <header class="top">
-    <div class="brand"><div class="logo"><span class="ms" aria-hidden="true">route</span></div><div><h1>CareLoop</h1><small>From screening result to documented care</small></div></div>
+    <div class="brand"><div class="logo"><span class="ms" aria-hidden="true">route</span></div><div><h1>CareLoop</h1><small>Your health record follows you, to emergencies and to any registered facility you allow</small></div></div>
     <div class="row" id="patients"></div>
   </header>
   <section class="start" id="start" aria-label="Start here"></section>
@@ -351,7 +351,7 @@ const P=[
  audit:[A("2 Nov 2026 18:20","City Pharmacy · Pharm. J. Osei","Viewed medicines (pharmacy default); dispensing added"),A("2 Nov 2026 17:30","Family Health Clinic · Dr M. Okafor","Opened a sensitive section (Hannah's share)"),A("30 Oct 2026 11:05","Hannah Thomas","Shared a sensitive section with Family Health Clinic only"),A("30 Oct 2026 11:05","Hannah Thomas","Turned off paper letters"),A("30 Oct 2026 10:40","CareLoop rule","Case opened by rule"),A("30 Oct 2026 10:30","Family Health Clinic · Nurse A. Bello","Fingerprint matched (one-to-one); antenatal visit added")]}];
 function SN(c,k){return (c.stepNames||STEP_NAMES)[k]}
 
-const S={pid:0,role:"clinic",view:"worklist",demo:null,sel:{},filter:"all",verified:{},aiOpen:false,ai:{},sample:undefined,seen:{}};
+const S={pid:0,role:"patient",view:"profile",demo:null,sel:{},filter:"all",verified:{},aiOpen:false,ai:{},sample:undefined,seen:{}};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const ic=n=>`<span class="ms" aria-hidden="true">${n}</span>`;
@@ -778,19 +778,25 @@ function pinModal(title,text,onOk){openModal(`<h3>${esc(title)}</h3><p class="sm
 
 /* ---------- start here: three guided demos + how it would work ---------- */
 const DEMOS={
- loop:{pid:1,role:"clinic",view:"case",t:"A missed visit gets caught",s:"Daniel · Family Health Clinic",
-  hint:"Daniel missed his visit, so his case escalated instead of disappearing. Tap <b>Simulated scan</b>. His prints are worn, so choose <b>National ID card and PIN</b> (PIN 2580). Then see the overdue step, the nurse's note and the rebooked 7:30 am slot."},
- privacy:{pid:4,role:"pharmacy",view:"profile",t:"Privacy that keeps care safe",s:"Hannah · City Pharmacy",
-  hint:"Tap <b>Simulated scan</b>. City Pharmacy sees Hannah's medicines and the iron timing warning, but not why she takes them. Her HIV care is shared with her clinic only. Then choose <b>Viewing as: Patient</b> and open <b>Access</b> to see who sees what."},
- emergency:{pid:2,role:"ambulance",view:"profile",t:"An emergency with no ID",s:"Mary · City Ambulance",
-  hint:"Mary collapsed with no ID. Tap <b>Simulated scan</b> for an emergency fingerprint search. She allowed full access in emergencies, so the crew sees her blood thinner and mechanical valve. It's flagged, logged and her daughter is told."}};
+ emergency:{pid:2,role:"ambulance",view:"profile",t:"1 · An emergency with no ID",s:"Mary · City Ambulance",
+  hint:"Mary collapsed at the market with no ID. Tap <b>Simulated scan</b> for an emergency fingerprint search on the ambulance's registered reader. She turned on full access in emergencies, so the crew sees her blood thinner, mechanical valve and contrast allergy. It's flagged, logged and her daughter is told."},
+ past:{pid:0,role:"clinic",view:"profile",sel:"s4",ai:true,t:"2 · A new facility sees past care",s:"Sara · Family Health Clinic",
+  hint:"Tap <b>Simulated scan</b>. Sara's 2019 forearm surgery at another hospital is on her record: X-rays and the operation note, held where they were made. In <b>Ask the record</b>, tap <b>Can they have amoxicillin?</b>: the answer comes only from her record, with the source."},
+ privacy:{pid:4,role:"pharmacy",view:"profile",t:"3 · Only what the patient allows",s:"Hannah · City Pharmacy",
+  hint:"Tap <b>Simulated scan</b>. City Pharmacy sees Hannah's medicines and the iron timing warning, but not why she takes them. Her HIV care is shared with her clinic only, and never sent to the assistant."},
+ registered:{pid:0,role:"patient",view:"access",t:"4 · Registered facilities only",s:"Sara · Access",
+  hint:"Sara decides who sees what, and access stays on until she removes it. In <b>Give access</b>, QuickCare Clinic (licence suspended) and Dr P. Lane (licence not verified) can't be chosen. Every view is in her <b>Audit log</b>."},
+ loop:{pid:1,role:"clinic",view:"case",t:"5 · Care doesn't get lost",s:"Daniel · Family Health Clinic",
+  hint:"Because the record follows Daniel, a flagged reading becomes a case that can't quietly disappear. Tap <b>Simulated scan</b>; his prints are worn, so choose <b>National ID card and PIN</b> (PIN 2580). He missed his visit, the case escalated, and a nurse rebooked him around his shifts."}};
 function renderStart(){const d=S.demo&&DEMOS[S.demo];
-  $("start").innerHTML=`<div class="sh"><h2>Start here</h2><span class="small mute">Three one-minute demos. Everything is made up and simulated.</span></div>
+  $("start").innerHTML=`<div class="sh"><h2>Start here</h2><span class="small mute">Five short demos. Everything is made up and simulated.</span></div>
   <div class="demos">${Object.entries(DEMOS).map(([k,x])=>`<button class="demo${S.demo===k?" on":""}" data-demo="${k}"><b>${esc(x.t)}</b><span>${esc(x.s)}</span></button>`).join("")}<button class="demo how" data-act="how"><b>How it would work</b><span>Architecture, deployment, pilot</span></button></div>
-  ${d?`<div class="hint" role="status">${d.hint}</div>`:`<div class="hint">You're on the clinic's worklist: every open case, most urgent first. A case can't close without evidence or a named clinician's decision.</div>`}`}
+  ${d?`<div class="hint" role="status">${d.hint}</div>`:`<div class="hint"><b>One record per person.</b> It follows them to emergencies and to any licence-verified clinic, pharmacy or hospital they allow. Every view is logged. The assistant answers only from what that viewer may see. You're viewing Sara's own record.</div>`}`}
 function howModal(){$("sheet").classList.add("wide");
   const box=(t,s)=>`<div class="fb"><b>${t}</b>${s}</div>`;
   openModal(`<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><div><h3>How it would work</h3><p class="small mute" style="margin:0">Planned design. Today's prototype is one browser page with simulated data and no backend.</p></div><button class="arrow" data-act="close" aria-label="Close">${ic("close")}</button></div>
+  <div class="howh">The record follows the person</div>
+  <ul class="howl"><li>One record per person, linked by NIN or a fingerprint on a registered reader at the facility.</li><li>Files stay at the hospital or lab that made them; the record carries an index, so any allowed facility can open them.</li><li>Only licence-verified facilities the patient allows can see it, section by section, until the patient removes access.</li><li>In an emergency, crews see the emergency card (allergies, medicines, implants, DNR). The full record opens only if the patient turned that on. It's flagged and the patient and their contact are told.</li><li>Every view, file, request and emergency access is logged, and the patient can read the log.</li><li>The assistant answers only from what that viewer may see, cites its source, and never diagnoses.</li></ul>
   <div class="howh">Architecture (planned)</div>
   <div class="flow">${box("1 · Screening point","Pharmacy, outreach camp or antenatal clinic records a result")}${box("2 · Identity","NIN lookup, or a registered fingerprint reader. Returns a patient ID only; templates are stored apart from medical data")}${box("3 · Case engine","Programme rule opens a case; 8 steps with owners, due dates, evidence and escalation")}${box("4 · Messages","SMS, USSD and voice in the patient's language, at the times they choose")}</div>
   <div class="flow">${box("Consent and audit service","Per-section sharing, sensitive sections opt-in, every view logged")}${box("Record index","Files stay at the facility that made them; CareLoop keeps an index")}${box("Dashboard","Aggregate times to care and drop-off reasons; small groups hidden")}${box("Record assistant","Answers from the permitted record only, with sources; no diagnosis")}</div>
@@ -814,7 +820,7 @@ function render(){
   renderStart();renderTop();renderMain()}
 
 document.addEventListener("click",ev=>{const t=ev.target.closest("button,[data-act]");if(!t)return;const d=t.dataset,p=cur();
-  if(d.demo){const x=DEMOS[d.demo];S.demo=d.demo;S.pid=x.pid;S.role=x.role;S.view=x.view;S.aiOpen=false;return render()}
+  if(d.demo){const x=DEMOS[d.demo];S.demo=d.demo;S.pid=x.pid;S.role=x.role;S.view=x.view;S.aiOpen=!!x.ai;S.filter="all";if(x.sel)S.sel[P[x.pid].id]=x.sel;window.scrollTo({top:0});return render()}
   if(d.pid!=null){S.pid=+d.pid;return render()}
   if(d.wl!=null){S.pid=+d.wl;S.view="case";window.scrollTo({top:0});return render()}
   if(d.role){S.role=d.role;S.view={admin:"dashboard",regulator:"trail"}[d.role]||"profile";return render()}
