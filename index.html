@@ -11,7 +11,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,400,0,0&icon_names=auto_awesome,check_circle,checklist,chevron_left,chevron_right,close,dashboard,description,do_not_disturb_on,emergency,fingerprint,history,image,info,key,lock,person,route,send,shield,upload,warning&display=block">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,400,0,0&icon_names=auto_awesome,check_circle,checklist,chevron_left,chevron_right,close,dashboard,description,dialpad,do_not_disturb_on,download,emergency,fingerprint,history,image,info,key,lock,person,route,send,shield,upload,warning&display=block">
 <style>
 /* Layout: cream frame, warm white rounded cards; profile = left column (identity, assistant, emergency, audit) + right column (case, plan, timeline, details)
    Palette: cream + near-black + pastel yellow / pink / olive / periwinkle; orange marks the selected timeline bar; red kept for safety alerts */
@@ -180,6 +180,14 @@ td{padding:7px 8px;border-bottom:1px solid var(--line);font-variant-numeric:tabu
 .fb b{display:block;font-size:13px;font-weight:600}
 .howh{font-family:var(--display);font-size:15px;font-weight:600;margin:14px 0 4px}
 .howl{margin:0;padding-left:18px;font-size:13px}.howl li{margin:2px 0}
+.fjson{background:var(--tint);border-radius:12px;padding:10px 12px;font-size:11.5px;max-height:42vh;overflow:auto;white-space:pre;margin:8px 0 0}
+.chk{font-size:12.5px;display:flex;gap:6px;padding:3px 0;border-bottom:1px solid var(--line)}.chk b{font-weight:600;color:var(--blue)}.chk.no b{color:var(--alert)}
+.phone{width:270px;max-width:100%;background:#1f1d1a;border-radius:30px;padding:18px 14px 16px;margin:0 auto}
+.pscr{background:#C7D4B0;color:#11160b;font-family:ui-monospace,Consolas,monospace;min-height:210px;padding:10px 11px;border-radius:10px;white-space:pre-wrap;font-size:13px;line-height:1.45;overflow-wrap:anywhere}
+.pin{background:#E4EBD6;border-radius:6px;padding:3px 6px;margin-top:6px;min-height:24px}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}
+.keys button{border:none;border-radius:12px;background:#3A3732;color:#fff;padding:9px 0;font-size:16px}
+.keys button.send{background:var(--green);color:var(--on-pastel)}.keys button.end{background:var(--alert)}
 @media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}.brand h1{font-size:20px}}
 @media (max-width:560px){.demo{flex:1 1 calc(50% - 4px);padding:8px 10px}.demo span{display:none}.start .sh span{display:none}.hint{font-size:12.5px}}
 </style>
@@ -391,7 +399,7 @@ function renderTop(){
   const showP=!["admin","regulator"].includes(S.role);
   $("patients").innerHTML=showP?`<span class="lbl">Patient</span>`+P.map((p,i)=>`<button class="chip${i===S.pid?" on":""}" data-pid="${i}">${esc(p.name)}</button>`).join(""):"";
   $("roles").innerHTML=`<span class="lbl">Viewing as</span>`+Object.entries(ROLES).map(([k,r])=>`<button class="chip sm${k===S.role?" on":""}" data-role="${k}">${esc(r.label)}${k==="ambulance"?" (emergency)":""}</button>`).join("");
-  const T={patient:[["profile","person","Profile"],["case","route","Case"],["access","key","Access"],["audit","history","Audit log"]],clinic:[["profile","person","Profile"],["case","route","Case"],["worklist","checklist","Worklist"]],pharmacy:[["profile","person","Profile"]],ambulance:[["profile","person","Profile"]],admin:[["dashboard","dashboard","Dashboard"]],regulator:[["trail","shield","Audit trail"]]}[S.role];
+  const T={patient:[["profile","person","Profile"],["case","route","Case"],["access","key","Access"],["audit","history","Audit log"],["phone","dialpad","Basic phone"]],clinic:[["profile","person","Profile"],["case","route","Case"],["worklist","checklist","Worklist"]],pharmacy:[["profile","person","Profile"]],ambulance:[["profile","person","Profile"]],admin:[["dashboard","dashboard","Dashboard"]],regulator:[["trail","shield","Audit trail"]]}[S.role];
   if(!T.some(t=>t[0]===S.view))S.view=T[0][0];
   $("tabs").innerHTML=T.length>1?T.map(t=>`<button class="tab${t[0]===S.view?" on":""}" data-view="${t[0]}">${ic(t[1])}${t[2]}</button>`).join(""):"";
   const p=cur();let html="",flag=false;
@@ -420,7 +428,7 @@ function profileHTML(){
   if(S.role==="ambulance")top=`<div class="banner">${ic("emergency")}<div style="flex:1"><b>Emergency access · flagged for review</b><div class="small">Logged and reported to ${esc(p.first)} and ${esc(p.contact)}. ${a.emOnly?"Full record is off in their settings.":"Full record opened by their own setting."}</div></div></div>`;
   return top+`<div class="grid"><div class="col">${summaryCard(p)}${aiCard(p,a)}${emCard(p)}${auditCard(p)}</div><div class="col">${rightCol(p,a)}</div></div>`}
 
-function summaryCard(p){return `<section class="card"><div class="who"><div class="avatar">${ic("person")}</div><div><b>${esc(p.name)}</b><span class="small mute">${p.sex}, ${p.age} · ${p.clid}</span></div></div>${p.sum.map(r=>`<div class="kv"><span>${esc(r[0])}</span><span>${esc(r[1])}</span></div>`).join("")}</section>`}
+function summaryCard(p){return `<section class="card"><div class="who"><div class="avatar">${ic("person")}</div><div><b>${esc(p.name)}</b><span class="small mute">${p.sex}, ${p.age} · ${p.clid}</span></div></div>${p.sum.map(r=>`<div class="kv"><span>${esc(r[0])}</span><span>${esc(r[1])}</span></div>`).join("")}<button class="btn ghost" style="margin-top:10px" data-act="fhir">${ic("download")} Export as FHIR</button><div class="small mute" style="margin-top:4px">The standard format hospital systems exchange. Only what you can see is exported.</div></section>`}
 function emCard(p){const e=p.em;const g=(t,arr)=>`<div class="grp">${t}</div><div class="tags">${arr.join("")}</div>`;
   const dnr=e.dnr?`<div role="note" aria-label="Resuscitation decision" style="background:var(--alert-bg);border:1.5px solid var(--alert);border-radius:12px;padding:10px 12px;margin:2px 0 10px">
     <div style="color:var(--alert-ink);font-weight:600">${ic("do_not_disturb_on")} ${esc(e.dnr.text)}</div>
@@ -776,6 +784,96 @@ function pinModal(title,text,onOk){openModal(`<h3>${esc(title)}</h3><p class="sm
   $("pmOk").onclick=()=>{if(!/^\d{4}$/.test($("pmPin").value))return $("pmErr").textContent="Enter 4 digits.";closeModal();onOk()};
   $("pmPin").addEventListener("input",()=>$("pmErr").textContent="")}
 
+/* ---------- FHIR R4 export: only what the current viewer may see ---------- */
+const MON={Jan:"01",Feb:"02",Mar:"03",Apr:"04",May:"05",Jun:"06",Jul:"07",Aug:"08",Sep:"09",Oct:"10",Nov:"11",Dec:"12"};
+function isoD(s){s=String(s||"");let m=s.match(/(\d{1,2}) (\w{3}) (\d{4})(?: (\d{2}):(\d{2}))?/);if(m&&MON[m[2]])return m[3]+"-"+MON[m[2]]+"-"+m[1].padStart(2,"0")+(m[4]?`T${m[4]}:${m[5]}:00+01:00`:"");
+  m=s.match(/(\w{3}) (\d{4})/);if(m&&MON[m[1]])return m[2]+"-"+MON[m[1]];m=s.match(/\b(19|20)\d{2}\b/);return m?m[0]:null}
+function instant(s){const d=isoD(s)||"2026";if(d.includes("T"))return d;const p=(d+"-01-01").split("-");return `${p[0]}-${p[1]}-${p[2]}T00:00:00+01:00`}
+function canGrant(n){const x=PROVIDERS.find(x=>x.n===n);return !!(x&&x.ok)}
+function fhirBundle(p,a,role){role=role||S.role;const base="https://careloop.example/fhir/",subj={reference:"Patient/"+p.clid},E=[];let n=0;
+  const add=r=>{r.id=r.id||`${p.id}-${++n}`;E.push({fullUrl:base+r.resourceType+"/"+r.id,resource:r})};
+  const vis=!a.emOnly&&!a.none,sok=sensOK(a);
+  const dob=(p.sum.find(r=>r[0]==="Date of birth")||[])[1];
+  add({resourceType:"Patient",id:p.clid,identifier:[{system:"https://careloop.example/id",value:p.clid}],name:[{text:p.name}],gender:p.sex==="F"?"female":"male",...(dob?{birthDate:isoD(dob)}:{})});
+  p.em.allergies.filter(x=>!/^No known/i.test(x[0])).forEach(x=>add({resourceType:"AllergyIntolerance",clinicalStatus:{coding:[{system:"http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",code:"active"}]},code:{text:x[0].split(" · ")[0]},criticality:x[1]==="sev"?"high":"low",patient:subj,note:[{text:x[0]}]}));
+  let last=null;(vis&&canSec(a,"medications")?p.secs.medications:p.em.meds).forEach(m=>{if(/^No regular/i.test(m))return;if(/^Timing:/.test(m)&&last){last.note=[{text:m}];return}
+    last={resourceType:"MedicationStatement",status:"active",medicationCodeableConcept:{text:m},subject:subj};add(last)});
+  (vis&&canSec(a,"conditions")?p.secs.conditions:p.em.conditions).forEach(c=>add({resourceType:"Condition",code:{text:c},subject:subj}));
+  if(sok)p.sensitive.forEach(s=>add({resourceType:"Condition",meta:{security:[{system:"http://terminology.hl7.org/CodeSystem/v3-Confidentiality",code:"R",display:"restricted"}]},code:{text:s[0]+": "+s[1]},subject:subj}));
+  if(vis)p.events.filter(e=>canEvent(a,e)).forEach(e=>{const d=isoD(e.date),note=e.rows.map(r=>r[0]+": "+r[1]).join("; ");
+    if(e.cat==="surg")add({resourceType:"Procedure",status:"completed",code:{text:e.title},subject:subj,...(d?{performedDateTime:d}:{}),location:{display:e.place},note:[{text:note}]});
+    else if(e.cat==="read")add({resourceType:"Observation",status:"final",code:{text:e.title},subject:subj,...(d?{effectiveDateTime:d}:{}),performer:[{display:e.by||e.place}],valueString:note,...(e.sens?{meta:{security:[{system:"http://terminology.hl7.org/CodeSystem/v3-Confidentiality",code:"R"}]}}:{})});
+    if(canFiles(a,e))(e.files||[]).forEach(f=>add({resourceType:"DocumentReference",status:"current",subject:subj,description:f.n+" (file stays at "+(f.held||e.place)+")",custodian:{display:f.held||e.place},content:[{attachment:{title:f.n,contentType:f.t==="xray"?"image/png":"text/plain"}}]}))});
+  const mine=role==="patient"?p.grants:p.grants.filter(g=>g.p===(ROLES[role]||{}).provider);
+  mine.filter(g=>g.on).forEach(g=>add({resourceType:"Consent",status:"active",scope:{coding:[{system:"http://terminology.hl7.org/CodeSystem/consentscope",code:"patient-privacy"}]},category:[{coding:[{system:"http://loinc.org",code:"59284-0",display:"Patient Consent"}]}],patient:subj,performer:[subj],
+    provision:{type:"permit",actor:[{role:{coding:[{system:"http://terminology.hl7.org/CodeSystem/v3-ParticipationType",code:"IRCP"}]},reference:{display:g.p}}],code:[{text:g.level==="full"?"Full record":"Sections: "+g.secs.map(s=>SECNAME[s]).join(", ")}]}}));
+  if(role==="patient")p.audit.forEach(x=>add({resourceType:"AuditEvent",type:{system:"http://dicom.nema.org/resources/ontology/DCM",code:"110110",display:"Patient Record"},recorded:instant(x.when),agent:[{who:{display:x.who},requestor:true}],source:{observer:{display:"CareLoop"}},entity:[{what:subj,description:x.what+(x.flag?" (flagged)":"")}]}));
+  const c=p.caseData,oldR=S.role;S.role=role;const cc=canCase(a,p);S.role=oldR;
+  if(cc){const i=c.steps.findIndex(s=>!s.done);c.steps.forEach((s,k)=>add({resourceType:"Task",status:s.done?"completed":k===i?"in-progress":"requested",intent:"order",description:`${c.title}: step ${k+1}, ${SN(c,k)}`,for:subj,owner:{display:s.owner},...(isoD(s.due)?{restriction:{period:{end:isoD(s.due)}}}:{}),...(s.done?{executionPeriod:{end:instant(s.done)},note:[{text:s.ev}]}:{})}))}
+  return {resourceType:"Bundle",type:"collection",timestamp:"2026-11-14T12:00:00+01:00",entry:E}}
+function fhirModal(){const p=cur(),a=access(p),b=fhirBundle(p,a),js=JSON.stringify(b,null,2),cnt={};b.entry.forEach(e=>cnt[e.resource.resourceType]=(cnt[e.resource.resourceType]||0)+1);
+  S.fhirText=js;log(p,"Exported the record as FHIR (only what this viewer may see)");$("sheet").classList.add("wide");
+  openModal(`<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><div><h3>FHIR R4 export</h3><p class="small mute" style="margin:0">${esc(p.name)} · what ${esc(S.role==="patient"?"you":R().provider||R().label)} may see · ${b.entry.length} resources. Real FHIR R4 JSON, not yet checked against a FHIR server.</p></div><button class="arrow" data-act="close" aria-label="Close">${ic("close")}</button></div>
+  <div class="tags" style="margin-top:8px">${Object.entries(cnt).map(([k,v])=>`<span class="tag">${k} ${v}</span>`).join("")}</div>
+  <pre class="fjson">${esc(js)}</pre><div class="row" style="margin-top:8px"><button class="btn" data-act="fhirdl">${ic("download")} Download JSON</button><button class="btn ghost" data-act="fhircopy">Copy</button></div>
+  <p class="small mute" style="margin:8px 0 0">Allergies, medicines, conditions, surgeries, readings, file index, consent, audit log and case steps map to standard FHIR resources, so existing hospital systems could read them. Sensitive sections are marked restricted and included only for viewers they are shared with.</p>`);render()}
+
+/* ---------- access rules, checked live in the page ---------- */
+function accessChecks(){const out=[],ok=(n,c)=>out.push([n,!!c]);const prov=["clinic","pharmacy","ambulance"];const oldR=S.role;
+  try{
+  P.forEach(p=>{
+    ["patient",...prov].forEach(r=>{const a=access(p,r),ctx=aiContext(p,a),secret=p.sensitive.map(s=>s[1]).concat(p.events.filter(e=>e.sens).map(e=>e.title));
+      if(secret.length)ok(`${p.first}: sensitive data never sent to the assistant (${ROLES[r].label})`,secret.every(t=>!ctx.includes(t)));
+      if(r!=="patient"){const fj=JSON.stringify(fhirBundle(p,a,r));if(p.sensitive.length&&!sensOK(a))ok(`${p.first}: FHIR export for ${ROLES[r].label} has no sensitive data`,!/HIV|sensitive/i.test(fj.replace(/v3-Confidentiality/g,"")))}});
+    const ph=access(p,"pharmacy"),pg=p.grants.find(g=>g.p==="City Pharmacy"&&g.on);ok(`${p.first}: pharmacy sees only the sections granted`,SECTIONS.every(s=>canSec(ph,s[0])===(!!pg&&(pg.level==="full"||pg.secs.includes(s[0]))))&&(!sensOK(ph)||p.sensitive.some(s=>s[2]==="City Pharmacy")));
+    const am=access(p,"ambulance");ok(`${p.first}: ambulance sees the full record only if ${p.first} turned it on`,p.emergencyFull?am.full:am.emOnly);
+    ok(`${p.first}: every emergency access is flagged`,!!am.flag);
+    ok(`${p.first}: admin and regulator see no record`,access(p,"admin").none&&access(p,"regulator").none);
+    const cl=structuredClone(p);cl.grants.forEach(g=>{if(g.p==="Family Health Clinic")g.on=false});ok(`${p.first}: removing access takes effect at once`,access(cl,"clinic").emOnly);
+    S.role="pharmacy";ok(`${p.first}: pharmacy can't open the case`,!canCase(access(p,"pharmacy"),p));S.role=oldR;
+    if(p.caseData.sens){S.role="clinic";const cl2=structuredClone(p);cl2.sensitive=cl2.sensitive.map(s=>[s[0],s[1]]);ok(`${p.first}: a sensitive case opens only for a clinic it's shared with`,canCase(access(p,"clinic"),p)&&!canCase(access(cl2,"clinic"),cl2));S.role=oldR}});
+  PROVIDERS.filter(x=>!x.ok).forEach(x=>ok(`${x.n} (${x.why}) can't be given access`,!canGrant(x.n)));
+  ok("Dose questions get a fixed refusal",GUARD.test("What dose of amoxicillin should she take?"));
+  ok("Diagnosis requests get a fixed refusal",GUARD.test("Can you diagnose her?"));
+  ok("Messages can't name HIV or a medicine",DRAFT_BAD.test("Your HIV clinic visit")&&DRAFT_BAD.test("Take your warfarin"));
+  }finally{S.role=oldR}
+  return out}
+let CHECKS=null;function checks(){return CHECKS||(CHECKS=accessChecks())}
+
+/* ---------- basic phone: USSD menu (simulated) ---------- */
+S.ussd={scr:"dial",buf:"",msg:""};
+function ussdText(p){const u=S.ussd,on=p.grants.filter(g=>g.on);
+  switch(u.scr){
+   case "dial":return "Dial the CareLoop code\nthen press Send.\n\n(Simulated USSD:\nno network is used.)";
+   case "main":return `CareLoop\n${p.first}, choose:\n1 My next visit\n2 Who can see my record\n3 Emergency access\n4 Recent views\n0 Exit`;
+   case "next":return `Next:\n${(p.plan.find(r=>r[0]==="Upcoming")||["","None"])[1]}\n\n0 Back`;
+   case "who":return on.length?"Can see your record:\n"+on.map((g,i)=>`${i+1} ${g.p} (${g.level==="full"?"full":g.secs.length+" sections"})`).join("\n")+"\nReply a number to remove\n0 Back":"No one has access.\n0 Back";
+   case "rm":return `Remove ${u.target}?\nEnter your 4-digit PIN\n0 Back`;
+   case "em":return `Full access in an emergency: ${p.emergencyFull?"ON":"OFF"}\n1 Turn ${p.emergencyFull?"off":"on"}\n0 Back`;
+   case "empin":return `Turn emergency access ${p.emergencyFull?"off":"on"}?\nEnter your 4-digit PIN\n0 Back`;
+   case "views":return "Recent:\n"+p.audit.slice(0,3).map(x=>`${x.when.slice(0,6)} ${x.who.split(" · ")[0]}: ${x.what.slice(0,34)}`).join("\n")+"\n0 Back";
+   case "done":return u.msg+"\n\n0 Back";
+   case "bye":return "Session ended.\nPress Send to dial again.";}}
+function ussdSend(){const p=cur(),u=S.ussd,v=u.buf.trim();u.buf="";const on=p.grants.filter(g=>g.on);
+  const go=s=>{u.scr=s};
+  if(u.scr==="dial"||u.scr==="bye")return go("main");
+  if(v==="0")return go(u.scr==="main"?"bye":"main");
+  if(u.scr==="main")return go({1:"next",2:"who",3:"em",4:"views"}[v]||"main");
+  if(u.scr==="who"){const g=on[+v-1];if(g){u.target=g.p;go("rm")}return}
+  if(u.scr==="rm"){if(!/^\d{4}$/.test(v))return;const g=p.grants.find(g=>g.p===u.target&&g.on);if(g){g.on=false;log(p,`Removed access for ${g.p} (basic phone, USSD)`)}u.msg=`Done. ${u.target} can no longer see your record and was told.`;return go("done")}
+  if(u.scr==="em"){if(v==="1")go("empin");return}
+  if(u.scr==="empin"){if(!/^\d{4}$/.test(v))return;p.emergencyFull=!p.emergencyFull;log(p,`Full access in an emergency turned ${p.emergencyFull?"on":"off"} (basic phone, USSD)`);u.msg=`Emergency access is now ${p.emergencyFull?"ON":"OFF"}.`;return go("done")}
+  go("main")}
+function phoneHTML(){const p=cur(),u=S.ussd,sms=(p.caseData.msgs.filter(m=>/^SMS to/.test(m[1])).pop()||[])[2];
+  const masked=/pin/i.test(ussdText(p))?u.buf.replace(/./g,"•"):u.buf;
+  return `<div class="grid2"><section class="card"><h2>${ic("dialpad")}Basic phone<span class="sub">USSD menu · simulated</span></h2>
+   <div class="phone"><div class="pscr" aria-live="polite">${esc(ussdText(p))}${u.scr!=="dial"&&u.scr!=="bye"?`<div class="pin">${esc(masked)||"&nbsp;"}</div>`:""}</div>
+   <div class="keys">${["1","2","3","4","5","6","7","8","9","*","0","#"].map(k=>`<button data-k="${k}" aria-label="Key ${k}">${k}</button>`).join("")}<button class="end" data-k="end" aria-label="End">End</button><button data-k="del" aria-label="Delete">Del</button><button class="send" data-k="send" aria-label="Send">Send</button></div></div></section>
+   <section class="card"><h2>${ic("info")}Why a basic phone</h2><p class="small" style="margin:0 0 8px">Many patients don't have a smartphone or data. The same record, consent rules and audit log work from a USSD menu on any phone.</p>
+   <ul class="howl"><li>See the next visit</li><li>See who can see the record, and remove access with a PIN</li><li>Turn full emergency access on or off</li><li>See the latest views of the record</li></ul>
+   ${sms?`<div class="grp">Latest SMS to ${esc(p.first)}</div><div class="doc">${esc(sms)}</div>`:""}
+   <p class="small mute" style="margin:8px 0 0">Planned: menus and SMS in English, Pidgin, Yoruba, Hausa and Igbo, checked by native speakers. Any 4-digit PIN works in this demo.</p></section></div>`}
+
 /* ---------- start here: three guided demos + how it would work ---------- */
 const DEMOS={
  emergency:{pid:2,role:"ambulance",view:"profile",t:"1 · An emergency with no ID",s:"Mary · City Ambulance",
@@ -787,9 +885,11 @@ const DEMOS={
  registered:{pid:0,role:"patient",view:"access",t:"4 · Registered facilities only",s:"Sara · Access",
   hint:"Sara decides who sees what, and access stays on until she removes it. In <b>Give access</b>, QuickCare Clinic (licence suspended) and Dr P. Lane (licence not verified) can't be chosen. Every view is in her <b>Audit log</b>."},
  loop:{pid:1,role:"clinic",view:"case",t:"5 · Care doesn't get lost",s:"Daniel · Family Health Clinic",
-  hint:"Because the record follows Daniel, a flagged reading becomes a case that can't quietly disappear. Tap <b>Simulated scan</b>; his prints are worn, so choose <b>National ID card and PIN</b> (PIN 2580). He missed his visit, the case escalated, and a nurse rebooked him around his shifts."}};
-function renderStart(){const d=S.demo&&DEMOS[S.demo];
-  $("start").innerHTML=`<div class="sh"><h2>Start here</h2><span class="small mute">Five short demos. Everything is made up and simulated.</span></div>
+  hint:"Because the record follows Daniel, a flagged reading becomes a case that can't quietly disappear. Tap <b>Simulated scan</b>; his prints are worn, so choose <b>National ID card and PIN</b> (PIN 2580). He missed his visit, the case escalated, and a nurse rebooked him around his shifts."},
+ phone:{pid:0,role:"patient",view:"phone",t:"6 · Works on any phone",s:"Sara · Basic phone (USSD)",
+  hint:"No smartphone or data needed. Press <b>Send</b> to dial, then <b>2</b> and <b>Send</b> to see who can see Sara's record, or <b>3</b> to turn emergency access on or off (any 4-digit PIN). Changes appear in her Access tab and audit log. Simulated."}};
+function renderStart(){const d=S.demo&&DEMOS[S.demo],ck=checks(),np=ck.filter(c=>c[1]).length;
+  $("start").innerHTML=`<div class="sh"><h2>Start here</h2><span class="small mute">Six short demos. Everything is made up and simulated.</span><button class="tag ok" data-act="checks" style="border:none;margin-left:auto">${ic("check_circle")} ${np} of ${ck.length} access rules pass, checked live</button></div>
   <div class="demos">${Object.entries(DEMOS).map(([k,x])=>`<button class="demo${S.demo===k?" on":""}" data-demo="${k}"><b>${esc(x.t)}</b><span>${esc(x.s)}</span></button>`).join("")}<button class="demo how" data-act="how"><b>How it would work</b><span>Architecture, deployment, pilot</span></button></div>
   ${d?`<div class="hint" role="status">${d.hint}</div>`:`<div class="hint"><b>One record per person.</b> It follows them to emergencies and to any licence-verified clinic, pharmacy or hospital they allow. Every view is logged. The assistant answers only from what that viewer may see. You're viewing Sara's own record.</div>`}`}
 function howModal(){$("sheet").classList.add("wide");
@@ -797,21 +897,27 @@ function howModal(){$("sheet").classList.add("wide");
   openModal(`<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><div><h3>How it would work</h3><p class="small mute" style="margin:0">Planned design. Today's prototype is one browser page with simulated data and no backend.</p></div><button class="arrow" data-act="close" aria-label="Close">${ic("close")}</button></div>
   <div class="howh">The record follows the person</div>
   <ul class="howl"><li>One record per person, linked by NIN or a fingerprint on a registered reader at the facility.</li><li>Files stay at the hospital or lab that made them; the record carries an index, so any allowed facility can open them.</li><li>Only licence-verified facilities the patient allows can see it, section by section, until the patient removes access.</li><li>In an emergency, crews see the emergency card (allergies, medicines, implants, DNR). The full record opens only if the patient turned that on. It's flagged and the patient and their contact are told.</li><li>Every view, file, request and emergency access is logged, and the patient can read the log.</li><li>The assistant answers only from what that viewer may see, cites its source, and never diagnoses.</li></ul>
+  <div class="howh">Working today, in this page</div>
+  <ul class="howl"><li><b style="font-weight:600">FHIR R4 export:</b> any viewer can export what they may see as a FHIR Bundle (Patient, AllergyIntolerance, MedicationStatement, Condition, Procedure, Observation, DocumentReference, Consent, AuditEvent, Task). Use <b style="font-weight:600">Export as FHIR</b> on a profile.</li><li><b style="font-weight:600">Access rules checked live:</b> ${(()=>{const ck=checks();return `${ck.filter(c=>c[1]).length} of ${ck.length} checks pass`})()} each time the page loads.</li><li><b style="font-weight:600">Basic phone:</b> a simulated USSD menu uses the same consent rules and audit log.</li></ul>
+  <details id="chkList" style="margin-top:6px"><summary class="small">See every access check</summary><div style="margin-top:6px">${checks().map(c=>`<div class="chk${c[1]?"":" no"}"><b>${c[1]?"Pass":"Fail"}</b><span>${esc(c[0])}</span></div>`).join("")}</div></details>
   <div class="howh">Architecture (planned)</div>
   <div class="flow">${box("1 · Screening point","Pharmacy, outreach camp or antenatal clinic records a result")}${box("2 · Identity","NIN lookup, or a registered fingerprint reader. Returns a patient ID only; templates are stored apart from medical data")}${box("3 · Case engine","Programme rule opens a case; 8 steps with owners, due dates, evidence and escalation")}${box("4 · Messages","SMS, USSD and voice in the patient's language, at the times they choose")}</div>
   <div class="flow">${box("Consent and audit service","Per-section sharing, sensitive sections opt-in, every view logged")}${box("Record index","Files stay at the facility that made them; CareLoop keeps an index")}${box("Dashboard","Aggregate times to care and drop-off reasons; small groups hidden")}${box("Record assistant","Answers from the permitted record only, with sources; no diagnosis")}</div>
   <p class="small mute" style="margin:2px 0 0">Records would be exchanged in the HL7 FHIR standard so existing clinic systems can connect.</p>
   <div class="howh">Deployment</div>
-  <ul class="howl"><li>Identity: National Identification Number (NIN) first; facility fingerprint readers where NIN can't be checked; one-time code, ID card plus PIN or flagged staff entry as fallbacks.</li><li>Patients without smartphones: SMS, USSD and voice calls in English, Yoruba, Hausa, Igbo and Pidgin.</li><li>Clinics with poor internet keep working offline and sync later.</li><li>Facilities join after a licence check. A new screening programme needs only its rule and step owners.</li></ul>
+  <ul class="howl"><li>Identity: National Identification Number (NIN) first; facility fingerprint readers where NIN can't be checked; one-time code, ID card plus PIN or flagged staff entry as fallbacks.</li><li>Patients without smartphones: SMS, USSD and voice calls in English, Yoruba, Hausa, Igbo and Pidgin.</li><li>Clinics with poor internet keep working offline and sync later.</li><li>Facilities join after a licence check. A new screening programme needs only its rule and step owners.</li><li>Rollout: one pharmacy and one clinic, then one local government area, then one state. Each step starts only when NIN checks work, staff are trained and cases are updated on time.</li><li>Scale: about 26,700 primary health care facilities are registered in Nigeria, and 136 million people have a NIN (July 2026).</li></ul>
   <div class="howh">Safety and data governance</div>
   <ul class="howl"><li>Patients choose who sees which sections; sensitive sections are hidden unless they share them.</li><li>Every view, file, request and emergency access is logged and readable by the patient; emergency access is flagged.</li><li>Flags, escalation and closure are rule-based and human. The assistant never diagnoses, never sees sensitive sections, and answers only from what the viewer may see.</li><li>Would need review against the Nigeria Data Protection Act 2023 and a security audit before any real data.</li></ul>
   <div class="howh">Path to a pilot</div>
-  <ul class="howl"><li>One pharmacy and one clinic in Lagos, 3 months, hypertension first.</li><li>Measure time to notification, confirmation and care, the share of cases closed with evidence, and drop-off reasons, against paper referral slips.</li><li>Who could pay (a proposal, not tested): state primary health care boards or funded screening programmes, per facility. Free for patients and pharmacies.</li><li>What must hold: low SMS cost per case, NIN or affordable readers for identity, and staff who update cases.</li></ul>
+  <ul class="howl"><li>One pharmacy and one clinic in Lagos, 3 months, hypertension first.</li><li>Measure time to notification, confirmation and care, the share of cases closed with evidence, and drop-off reasons, against paper referral slips.</li><li>What must hold: low SMS cost per case, NIN or affordable readers for identity, and staff who update cases.</li></ul>
+  <div class="howh">Costs and who could pay (estimates)</div>
+  <ul class="howl"><li>SMS: about ₦6 per message at the standard rate, ₦2 to ₦7 in bulk. About 5 messages per case, so roughly ₦30 per case.</li><li>Fingerprint reader: a certified USB reader costs about US$90 to $125, one per facility. Not needed where NIN checks work.</li><li>Hosting and support: not estimated yet; measured in the pilot.</li><li>Who could pay (a proposal, not agreed): the Basic Health Care Provision Fund, which already funds primary care (8,309 facilities in 2025, 13,512 planned for 2026); state health insurance schemes; and HMOs, which save on repeat tests and medication errors. Free for patients.</li></ul>
+  <p class="small mute" style="margin:6px 0 0">Sources: NCC 2025 SMS tariff and operator bulk rates; US reseller prices for the SecuGen Hamster Pro 20; Nigeria Health Facility Register via CISD; NIMC enrolment figures, July 2026; NPHCDA via The Guardian on BHCPF coverage; National Health Act 2014, section 11.</p>
   <p class="small mute" style="margin:12px 0 0">Not secure and not clinically validated. Built by one student for the Future Health Digital Innovation Challenge 2026.</p>`)}
 
 /* ---------- render + events ---------- */
 function renderMain(){const v=S.view;let h="";
-  if(v==="profile")h=needsGate()?gateHTML():profileHTML();else if(v==="case")h=needsGate()?gateHTML():caseHTML();else if(v==="access")h=accessHTML();else if(v==="audit")h=auditHTML();else if(v==="dashboard")h=dashHTML();else if(v==="trail")h=trailHTML();else if(v==="worklist")h=worklistHTML();
+  if(v==="profile")h=needsGate()?gateHTML():profileHTML();else if(v==="case")h=needsGate()?gateHTML():caseHTML();else if(v==="access")h=accessHTML();else if(v==="audit")h=auditHTML();else if(v==="dashboard")h=dashHTML();else if(v==="trail")h=trailHTML();else if(v==="worklist")h=worklistHTML();else if(v==="phone")h=phoneHTML();
   const ae=document.activeElement,keep=ae&&ae.id;const val=keep&&ae.value;
   $("main").innerHTML=h;
   if(keep&&$(keep)){$(keep).value=val;if(keep!=="aiIn"||!S.ai[S.role+":"+cur().id].busy)$(keep).focus()}}
@@ -821,7 +927,8 @@ function render(){
 
 document.addEventListener("click",ev=>{const t=ev.target.closest("button,[data-act]");if(!t)return;const d=t.dataset,p=cur();
   if(d.demo){const x=DEMOS[d.demo];S.demo=d.demo;S.pid=x.pid;S.role=x.role;S.view=x.view;S.aiOpen=!!x.ai;S.filter="all";if(x.sel)S.sel[P[x.pid].id]=x.sel;window.scrollTo({top:0});return render()}
-  if(d.pid!=null){S.pid=+d.pid;return render()}
+  if(d.k){const u=S.ussd;if(d.k==="send")ussdSend();else if(d.k==="end"){u.scr="bye";u.buf=""}else if(d.k==="del")u.buf=u.buf.slice(0,-1);else if(u.buf.length<12)u.buf+=d.k;return renderMain()}
+  if(d.pid!=null){S.pid=+d.pid;S.ussd={scr:"dial",buf:"",msg:""};return render()}
   if(d.wl!=null){S.pid=+d.wl;S.view="case";window.scrollTo({top:0});return render()}
   if(d.role){S.role=d.role;S.view={admin:"dashboard",regulator:"trail"}[d.role]||"profile";return render()}
   if(d.view){S.view=d.view;window.scrollTo({top:0});return render()}
@@ -840,6 +947,12 @@ document.addEventListener("click",ev=>{const t=ev.target.closest("button,[data-a
    case "scan":return scanFlow();
    case "close":return closeModal();
    case "how":return howModal();
+   case "fhir":return fhirModal();
+   case "fhirdl":{const fn=`careloop-${p.clid}-fhir.json`;(async()=>{let dl=null;try{dl=window.claude&&window.claude.use?await window.claude.use("downloads"):null}catch(e){}
+      if(dl){try{await dl.save({filename:fn,data:S.fhirText});toast("Saved")}catch(e){toast("Download cancelled")}return}
+      try{const b=new Blob([S.fhirText],{type:"application/fhir+json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=fn;document.body.appendChild(a);a.click();a.remove();toast("Download started")}catch(e){toast("Download isn't allowed here; use Copy")}})();return}
+   case "fhircopy":{(navigator.clipboard?navigator.clipboard.writeText(S.fhirText):Promise.reject()).then(()=>toast("Copied")).catch(()=>toast("Copy isn't allowed here; select the text instead"));return}
+   case "checks":howModal();setTimeout(()=>{const e=$("chkList");if(e){e.open=true;e.scrollIntoView({block:"start"})}},50);return;
    case "aitoggle":S.aiOpen=!S.aiOpen;return renderMain();
    case "aiclear":S.ai[S.role+":"+p.id]={msgs:[],busy:false,err:""};return renderMain();
    case "upload":return $("fileIn").click();
@@ -851,7 +964,7 @@ document.addEventListener("submit",ev=>{ev.preventDefault();const f=ev.target,p=
   if(f.id==="aiForm"){const v=$("aiIn").value.trim();if(!v){$("aiErr").textContent="Type a question first.";return}$("aiIn").value="";askAI(v)}
   if(f.id==="noteForm"){const v=$("noteIn").value.trim();if(!v){$("noteErr").textContent="Write the note first.";return}p.caseData.notes.push([clock(),R().staff,v]);log(p,"Added a clinician note");$("noteIn").value="";render()}
   if(f.id==="grantForm"){const prov=$("gProv").value,lvl=f.querySelector("input[name=gLevel]:checked").value,secs=[...f.querySelectorAll("#gSecs input:checked")].map(x=>x.value),pin=$("gPin").value,e=m=>$("gErr").textContent=m;
-    if(!prov)return e("Choose a provider.");if(lvl==="sections"&&!secs.length)return e("Tick at least one section.");if(!/^\d{4}$/.test(pin))return e("Enter your 4-digit PIN.");
+    if(!prov)return e("Choose a provider.");if(!canGrant(prov))return e("That provider's licence isn't verified, so it can't be given access.");if(lvl==="sections"&&!secs.length)return e("Tick at least one section.");if(!/^\d{4}$/.test(pin))return e("Enter your 4-digit PIN.");
     let g=p.grants.find(g=>g.p===prov);if(!g){g={p:prov,why:"Chosen by "+p.first,since:"14 Nov 2026"};p.grants.push(g)}Object.assign(g,{level:lvl,secs:lvl==="full"?[]:secs,on:true});
     log(p,`Gave ${prov} ${lvl==="full"?"full access":"access to "+secs.map(s=>SECNAME[s]).join(", ")}`);toast(`${prov} notified`);render()}});
 document.addEventListener("input",ev=>{const id=ev.target.id;if(id==="aiIn"&&$("aiErr"))$("aiErr").textContent="";if(id==="caseEv"&&$("caseErr"))$("caseErr").textContent="";if(id==="noteIn")$("noteErr").textContent="";if(id==="draftIn"){const d=S.draft[cur().id];if(d&&!d.busy)d.text=ev.target.value;if($("draftErr"))$("draftErr").textContent=""}if(["gProv","gPin"].includes(id))$("gErr").textContent=""});
